@@ -1,0 +1,20 @@
+command (in .): python cert/C-G/cg_graph_b.py 500
+date (UTC): 2026-11-27T19:12:53Z
+PROOF.md sha256: b25f97dc7f6a39faf37f3b5c844c06a2e7a146fa6ada908c8f1f85b51bf3fdb8
+certified lines sha256: cf86be4f636b4f9429ff0cd1d4445a30f5ab9071c760fb6491a68b700c1b060f
+python: 3.12.10; node: v24.20.0
+platform: Windows-11-10.0.26200-SP0
+---
+B0 lengths (7, 4, 6) (expected (7, 4, 6)); common prefix 321 123: True
+B1 X+: indices 2..8 proper at w_i and x_i: True (7 checked)
+B1 Y+: indices 2..5 proper at w_i and x_i: True (4 checked)
+B1 Z+: indices 2..7 proper at w_i and x_i: True (6 checked)
+B1 total indices checked: 17 (expected 17): ok
+B2 G(11+6j,2) coloured by X Y Z^j, three perfect matchings, 0<=j<=500: failures []: ok
+B3 n=11 colour strings of PROOF.md equal X Y: ok
+B4 SAT: G(5,2) 3-edge-colourable = False (expected False); G(11,2) = True, model proper = True (expected True, True)
+B4 corrupted X (X[4]=211) rejected by B1: True, by B2: True
+PASS
+---
+exit code: 0
+runtime_s: 10

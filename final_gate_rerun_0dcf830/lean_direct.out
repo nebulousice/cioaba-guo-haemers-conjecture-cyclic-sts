@@ -1,0 +1,8 @@
+command: lean Pipeline/CioabaGuoHaemers/Main.lean (direct kernel check, fresh clone 0dcf830, Lean (version 4.37.0-rc1, x86_64-w64-windows-gnu, commit 0b77e12952ad39077d80d8bd6b66d601f225c321, Release))
+date (UTC): 2026-11-27T18:45:56Z
+---
+'CioabaGuoHaemers.lemmaG_table' depends on axioms: [propext, Classical.choice]
+'CioabaGuoHaemers.lemmaG_small_cases' depends on axioms: [propext, Classical.choice]
+exit code: 0
+runtime_s: 1
+sorry/admit scan: none

@@ -1,0 +1,32 @@
+command: bash scripts/lean_check.sh CioabaGuoHaemers (fresh clone at 0dcf83063db64ac4f9beed8aa97ae8270e6cb66d; lean/.lake/packages = junction to main checkout's prebuilt packages, no downloads)
+date (UTC): 2026-11-27T18:33:05Z
+Main.lean sha256: 1965fd21c5b54a5ba862a06e7461b318c2a939e87077d89e581b067c9b668be7
+---
+== lake build
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Algebra.BigOperators.Fin` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Order.Interval.Finset.Defs` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Data.Int.Interval` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Combinatorics.SimpleGraph.AdjMatrix` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.LinearAlgebra.Matrix.ToLin` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Algebra.BigOperators.Intervals` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Algebra.BigOperators.Fin` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Order.Interval.Finset.Defs` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Data.Int.Interval` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\Defs.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Eigenspace.Zero` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Charpoly.ToMatrix` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Matrix.DotProduct` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Matrix.ToLin` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Eigenspace.Zero` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Charpoly.ToMatrix` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Matrix.DotProduct` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: Pipeline\QueensSpectrum\AlgMult.lean: imports `Mathlib.LinearAlgebra.Matrix.ToLin` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+Build completed successfully (7055 jobs).
+== sorry / admit scan
+== axioms
+'CioabaGuoHaemers.lemmaG_table' depends on axioms: [propext, Classical.choice]
+'CioabaGuoHaemers.lemmaG_small_cases' depends on axioms: [propext, Classical.choice]
+PASS lean_check CioabaGuoHaemers (Lean (version 4.37.0-rc1, x86_64-w64-windows-gnu, commit 0b77e12952ad39077d80d8bd6b66d601f225c321, Release))
+exit code: 0
+runtime_s: 1473

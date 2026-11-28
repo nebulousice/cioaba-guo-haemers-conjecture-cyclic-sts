@@ -1,0 +1,13 @@
+command: python -I scripts/orders.py 200000
+date (UTC): 2026-11-27T18:59:25Z
+script sha256: c8a84abd8cc2ffda387613cd614080d1b6dd6d3942fc6110f07ccec3f09078e8
+---
+orders.py; Python 3.12.10; standard library only; VMAX = 200000
+(1) v = 1 (mod 12), 13 <= v <= 200000, with phi(v)/(v-1) < 2/3: 199 orders
+    smallest: 385; first ten: 385, 805, 3325, 4165, 5005, 5425, 7105, 9625, 10465, 11305
+    every v = 1 (mod 12) with 13 <= v < 385 satisfies phi(v)/(v-1) >= 2/3: True
+(2) smallest v = 1 (mod 12) with >= 2 distinct prime divisors: 85 = 5 * 17
+(3) smallest v = 1 (mod 12) with >= 4 distinct prime divisors: 5005 = 5 * 7 * 11 * 13
+RESULT orders: PASS (385, 85, 5005 as stated in the write-up)
+exit code: 0
+runtime_s: 1

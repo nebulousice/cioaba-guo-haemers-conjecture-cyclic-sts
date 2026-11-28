@@ -1,0 +1,10 @@
+command: python -I verify_misc.py 60 100000
+date (UTC): 2026-11-27T18:30:29Z
+clone commit: 0dcf83063db64ac4f9beed8aa97ae8270e6cb66d
+script sha256: e862dac70c7d286e35db0de142c1ec213e899a1028510031a3f1436bceb6dc83
+---
+Lemma F: F_0..F_(N-2) are perfect matchings partitioning E(K_N) for every even N in 4..60: True
+Count: N even and 15+9(N-2) = k = 6+9(N-1) for every v = 1 (mod 12), 13 <= v <= 100000: True
+RESULT verify_misc: PASS
+exit code: 0
+runtime_s: 1

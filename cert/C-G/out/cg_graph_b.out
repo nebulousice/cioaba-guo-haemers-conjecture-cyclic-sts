@@ -1,0 +1,22 @@
+command: python targets/cioaba-guo-haemers/cert/C-G/cg_graph_b.py 500
+date: 2026-11-27T17:21:15Z
+commit: e69892fcb903e1920e7f8301ff87f8281cbec146
+tracked files modified: 0
+python: 3.12.10
+platform: Windows-11-10.0.26200-SP0
+libraries: networkx 3.7, python-sat 1.9.dev25 (Glucose4)
+sha256: 4db2b14d1eb23af855e91d868d8aa40c1ff83dc4d6038780a1bc38fdd07165e3  targets/cioaba-guo-haemers/cert/C-G/cg_graph_b.py
+---
+B0 lengths (7, 4, 6) (expected (7, 4, 6)); common prefix 321 123: True
+B1 X+: indices 2..8 proper at w_i and x_i: True (7 checked)
+B1 Y+: indices 2..5 proper at w_i and x_i: True (4 checked)
+B1 Z+: indices 2..7 proper at w_i and x_i: True (6 checked)
+B1 total indices checked: 17 (expected 17): ok
+B2 G(11+6j,2) coloured by X Y Z^j, three perfect matchings, 0<=j<=500: failures []: ok
+B3 n=11 colour strings of PROOF.md equal X Y: ok
+B4 SAT: G(5,2) 3-edge-colourable = False (expected False); G(11,2) = True, model proper = True (expected True, True)
+B4 corrupted X (X[4]=211) rejected by B1: True, by B2: True
+PASS
+---
+exit code: 0
+runtime_ms: 9719

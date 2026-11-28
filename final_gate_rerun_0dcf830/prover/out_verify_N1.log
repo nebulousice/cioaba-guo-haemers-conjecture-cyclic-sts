@@ -1,0 +1,12 @@
+command: python -I verify_N1.py 200 601
+date (UTC): 2026-11-27T18:30:36Z
+clone commit: 0dcf83063db64ac4f9beed8aa97ae8270e6cb66d
+script sha256: f481ad92affa4bc0215b2482f2d94359d8f37a2bdebb9b74390314f8dfca18ef
+---
+verify_N1.py; Python 3.12.10 ( CPython ) Windows 11 ; standard library only
+(A) all I(n,p,q), 3 <= n <= 200, meeting the hypotheses of Lemma N1: 119208 triples (21744 with n odd; smallest (12, 2, 3)); proper in every case: True
+(B) all proper I(m,a,b) with m odd, 3 <= m <= 601, 1 <= a < b <= (m-1)/2, gcd(m,a,b) = 1: 66141 graphs (smallest (15, 3, 5)); proper in every case: True
+(C) eps_L adjacent-distinct for L = 2..200: True; single-edge recolourings detected: 3192 of 3192
+RESULT verify_N1: PASS
+exit code: 0
+runtime_s: 120

@@ -1,0 +1,13 @@
+command (in prover): python -I verify_misc.py 60 100000
+date (UTC): 2026-11-27T19:13:18Z
+PROOF.md sha256: b25f97dc7f6a39faf37f3b5c844c06a2e7a146fa6ada908c8f1f85b51bf3fdb8
+certified lines sha256: cf86be4f636b4f9429ff0cd1d4445a30f5ab9071c760fb6491a68b700c1b060f
+python: 3.12.10; node: v24.20.0
+platform: Windows-11-10.0.26200-SP0
+---
+Lemma F: F_0..F_(N-2) are perfect matchings partitioning E(K_N) for every even N in 4..60: True
+Count: N even and 15+9(N-2) = k = 6+9(N-1) for every v = 1 (mod 12), 13 <= v <= 100000: True
+RESULT verify_misc: PASS
+---
+exit code: 0
+runtime_s: 0

@@ -1,0 +1,10 @@
+command (in lean/): lean Pipeline/CioabaGuoHaemers/Main.lean
+date (UTC): 2026-11-27T19:11:14Z
+Main.lean sha256: 1965fd21c5b54a5ba862a06e7461b318c2a939e87077d89e581b067c9b668be7
+lean: Lean (version 4.37.0-rc1, x86_64-w64-windows-gnu, commit 0b77e12952ad39077d80d8bd6b66d601f225c321, Release)
+---
+'CioabaGuoHaemers.lemmaG_table' depends on axioms: [propext, Classical.choice]
+'CioabaGuoHaemers.lemmaG_small_cases' depends on axioms: [propext, Classical.choice]
+---
+exit code: 0
+runtime_s: 2

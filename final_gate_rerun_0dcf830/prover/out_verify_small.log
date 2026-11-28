@@ -1,0 +1,13 @@
+command: python -I verify_small.py 13 25
+date (UTC): 2026-11-27T18:30:30Z
+clone commit: 0dcf83063db64ac4f9beed8aa97ae8270e6cb66d
+script sha256: fcb120e28a08162b43f6e8f0563390b8fb9373f304ee5c4809e21325afdd8ac7
+---
+Lemma C check, n odd <= 45: 1771 I-graphs, all as stated
+Lemma D sanity, connected I(m,a,b), m odd <= 25, a<b: 281 graphs; not 3-edge-colourable: [(5, 1, 2)]
+Lemma D' at v=85: pieces I(85,d,e), 1<=d<e<=42, gcd(85,d)>1 and gcd(85,e)>1: 45 {'proper': 16, 'disconnected': 29} ; not 3-edge-colourable: [(17, 34)]
+v=13: N=2, k=15, 15+9(N-2)=15; cyclic STS on Z_v: 4; Lemma A/B/E assertions hold for all; full colourings assembled and checked: 2040; stats {'pieces': 6120, 'disconnected': 0, 'proper': 0, 'rejected': 0, 'colourings': 2040}
+v=25: N=4, k=33, 15+9(N-2)=33; cyclic STS on Z_v: 240; Lemma A/B/E assertions hold for all; full colourings assembled and checked: 1440; stats {'pieces': 8640, 'disconnected': 0, 'proper': 0, 'rejected': 128, 'colourings': 1440}
+RESULT verify_small: PASS
+exit code: 0
+runtime_s: 6

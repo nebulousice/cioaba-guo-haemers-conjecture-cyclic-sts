@@ -1,0 +1,661 @@
+\documentclass[11pt]{amsart}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+% ---------------------------------------------------------------------
+% Theorem environments
+% ---------------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+% Lemmas carry letters (Lemma A, Lemma N1, ...), as in the file PROOF.md.
+\newcommand{\letteredname}{}
+\newtheorem*{letteredinner}{Lemma \letteredname}
+\newenvironment{lettered}[1]{\renewcommand{\letteredname}{#1}\begin{letteredinner}}{\end{letteredinner}}
+% Theorems quoted from the literature.
+\newcommand{\citedname}{}
+\newtheorem*{citedinner}{\citedname}
+\newenvironment{cited}[1]{\renewcommand{\citedname}{#1}\begin{citedinner}}{\end{citedinner}}
+\theoremstyle{definition}
+\newtheorem*{conjecture}{Conjecture}
+\newtheorem*{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{remark*}{Remark}
+
+\numberwithin{equation}{section}
+\setlength{\emergencystretch}{2em}
+
+% ---------------------------------------------------------------------
+% Macros
+% ---------------------------------------------------------------------
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\nrm}[1]{\lVert #1\rVert}
+\newcommand{\abs}[1]{\lvert #1\rvert}
+\newcommand{\STS}{\mathrm{STS}}
+\newcommand{\Ig}{I}            % I-graph I(n,p,q)
+\newcommand{\GP}{G}            % generalised Petersen graph G(n,q)
+\newcommand{\sym}[1]{\texttt{#1}}
+\DeclareMathOperator{\id}{id}
+\newcommand{\ttt}[1]{\texttt{#1}}
+
+% ---------------------------------------------------------------------
+% Zenodo DOI. Leave empty until the DOI is assigned; then insert it here,
+% for example \newcommand*{\zenodoDOI}{10.5281/zenodo.1234567}.
+% When the macro is empty, nothing is printed.
+\newcommand*{\zenodoDOI}{10.5281/zenodo.24613814}
+% ---------------------------------------------------------------------
+\newcommand*{\doiline}{\ifx\zenodoDOI\empty\else. DOI: \href{https://doi.org/\zenodoDOI}{\nolinkurl{\zenodoDOI}}\fi}
+
+\title[The Cioab\u{a}--Guo--Haemers conjecture for cyclic Steiner triple systems]{The Cioab\u{a}--Guo--Haemers conjecture for cyclic Steiner triple systems: the block graphs of cyclic systems of order \(v\equiv 1\pmod{12}\) are class~1}
+\author{Sukhraj Sachdeva}
+\date{2026-11-28\doiline}
+
+\begin{document}
+
+\begin{abstract}
+A graph is class~1 if its edges can be properly coloured with as many colours as its maximum degree. Cioab\u{a}, Guo and Haemers conjectured that every connected strongly regular graph of even order, except the Petersen graph, is class~1. For block graphs of Steiner triple systems the question was posed earlier by Darijani, Pike and Poulin. They proved that the block graph of a cyclic Steiner triple system of order \(v\equiv1\pmod{12}\) is class~1 when \(\varphi(v)/(v-1)\ge 2/3\), where \(\varphi\) is Euler's function. We prove the same conclusion for every such \(v\), for cyclic systems in the normal form used in their proof, without the condition on \(\varphi\). The argument follows theirs. It splits the block graph into cubic pieces, which are I-graphs, colours each piece with three colours, and avoids the one piece that cannot be so coloured. The pieces are handled by Alspach's theorem on Hamiltonian generalised Petersen graphs (cited), by an explicit colouring of proper I-graphs (a known fact, proved here directly), and by an explicit colouring of the graphs \(G(n,2)\) with \(n\equiv5\pmod6\). That last colouring rests on a table of 17 finite checks. The table is verified by two independent pairs of programs and by the Lean~4 kernel. The theorem as a whole is not formalized.
+
+Disclosure: Human researcher assisted by AI systems during search, proof drafting, and verification. Internally audited and computationally verified, externally unrefereed.
+\end{abstract}
+
+\maketitle
+
+% =====================================================================
+\section{Introduction}\label{sec:intro}
+
+\subsection{The problem}
+
+All graphs here are finite and simple. A \emph{proper edge colouring} of a graph gives each edge a colour so that edges with a common end get different colours. The \emph{chromatic index} \(\chi'(G)\) is the least number of colours in a proper edge colouring. Clearly \(\chi'(G)\) is at least the maximum degree \(\Delta(G)\). The graph is \emph{class~1} if \(\chi'(G)=\Delta(G)\), and \emph{class~2} otherwise.
+
+A \emph{strongly regular graph} with parameters \((n,k,\lambda,\mu)\) is a \(k\)-regular graph on \(n\) vertices, with \(0<k<n-1\), in which any two adjacent vertices have exactly \(\lambda\) common neighbours and any two non-adjacent vertices have exactly \(\mu\) common neighbours. The Petersen graph is strongly regular with parameters \((10,3,0,1)\), and it is class~2. Cioab\u{a}, Guo and Haemers stated the following.
+
+\begin{conjecture}[{\cite[Conjecture~1.2]{CGH}}]
+Except for the Petersen graph, every connected SRG of even order is class 1.
+\end{conjecture}
+
+Here SRG means strongly regular graph. A regular graph of odd order with at least one edge is never class~1, which is why the order is required to be even.
+
+An important family of strongly regular graphs comes from Steiner triple systems. A \emph{Steiner triple system} of order \(v\), written \(\STS(v)\), is a set \(V\) of \(v\) points with a set \(\cB\) of \(3\)-element subsets, called \emph{blocks}, such that every pair of distinct points lies in exactly one block. Its \emph{block graph} (or block intersection graph) has the blocks as vertices, two distinct blocks being adjacent when they share a point. For these graphs the question was posed earlier by Darijani, Pike and Poulin.
+
+\begin{conjecture}[{\cite[Conjecture~1.3]{DPP}}]
+Every \(\STS(v)\) with \(v\equiv 1\) or \(9 \pmod{12}\) has a Class~1 block intersection graph.
+\end{conjecture}
+
+An \(\STS(v)\) is \emph{cyclic} if some permutation of the points that maps blocks to blocks consists of a single cycle of length \(v\). Section~\ref{sec:defs} gives the precise definition and compares it with the wording of \cite{DPP}.
+
+\subsection{Results}
+
+The notation \(\varphi\) is Euler's function. Darijani, Pike and Poulin proved the cyclic case of their conjecture when \(v\equiv9\pmod{12}\) \cite[Theorem~4.1]{DPP}, and when \(v\equiv1\pmod{12}\) and \(\varphi(v)/(v-1)\ge2/3\) \cite[Theorem~3.1]{DPP}. Our main result is the following.
+
+\begin{theorem}\label{thm:main}
+Let \(v\equiv 1\pmod{12}\), \(v\ge 13\), and let \((\Z_v,\cB)\) be a cyclic \(\STS(v)\) in the normal form of Section~\ref{sec:defs}. Then its block graph \(G\) is class~1. Equivalently, the edge set of \(G\) is a disjoint union of \(k=3(v-3)/2\) perfect matchings.
+\end{theorem}
+
+This is the conclusion of \cite[Theorem~3.1]{DPP}, for cyclic systems in the normal form that \cite{DPP} assume in their Section~3, without the hypothesis \(\varphi(v)/(v-1)\ge 2/3\).
+
+\begin{remark}\label{rem:srg}
+The block graph \(G\) of Theorem~\ref{thm:main} is a connected strongly regular graph with parameters \(\bigl(v(v-1)/6,\ 3(v-3)/2,\ (v+3)/2,\ 9\bigr)\). Its order is even, and it is not the Petersen graph. So Theorem~\ref{thm:main} confirms the conjecture of Cioab\u{a}, Guo and Haemers for these graphs. (Proof in Section~\ref{sec:consequences}.)
+\end{remark}
+
+\begin{corollary}\label{cor:both}
+Every cyclic \(\STS(v)\) with \(v\equiv 1\) or \(9\pmod{12}\) has a class~1 block graph.
+\end{corollary}
+
+For \(v\equiv1\pmod{12}\) this is Theorem~\ref{thm:main}, with ``cyclic'' in the sense of Section~\ref{sec:defs}; by Remark~\ref{rem:cyclic} this agrees with the wording of \cite{DPP} for every \(v<5005\). For \(v\equiv9\pmod{12}\) it is \cite[Theorem~4.1]{DPP}, which we cite and whose proof we have not checked. For \(v\equiv3\) or \(7\pmod{12}\) the block graph has odd order, so it lies outside the conjecture. In this sense Theorem~\ref{thm:main} proves the Cioab\u{a}--Guo--Haemers conjecture for cyclic Steiner triple systems of order \(v\equiv1\pmod{12}\), and the case \(v\equiv9\pmod{12}\) is the cited theorem of Darijani, Pike and Poulin.
+
+\begin{remark}\label{rem:cyclic}
+Let \(v\) have at most three distinct prime divisors. If the automorphism group of an \(\STS(v)\) contains an element of order \(v\), then that element is a \(v\)-cycle on the points. So for such \(v\) the two readings of ``cyclic'' discussed in Section~\ref{sec:defs} agree, and Theorem~\ref{thm:main} covers every system that is cyclic in the sense of \cite{DPP}. The smallest \(v\equiv1\pmod{12}\) with four distinct prime divisors is \(5005=5\cdot7\cdot11\cdot13\). So the agreement holds for every \(v<5005\). (Proof in Section~\ref{sec:consequences}; Theorem~\ref{thm:main} does not use it.)
+\end{remark}
+
+\subsection{Which orders are covered by earlier work}
+
+The hypothesis of \cite[Theorem~3.1]{DPP} holds for every \(v\equiv1\pmod{12}\) below \(385\). The authors report that \(385=5\cdot7\cdot11\) is the smallest order \(v\equiv1\pmod{12}\) where it fails \cite[\S3]{DPP}. A direct computation (Section~\ref{sec:computer}, script \nolinkurl{scripts/orders.py}) confirms this and lists the orders \(v\equiv 1\pmod{12}\) up to \(200000\) where the hypothesis fails. There are \(199\) of them, beginning
+\[
+385,\ 805,\ 3325,\ 4165,\ 5005,\ 5425,\ 7105,\ 9625,\ 10465,\ 11305,\ \dots
+\]
+So every small order at which we ran the whole construction by computer (\(v=13\) and \(v=25\), Section~\ref{sec:computer}) lies inside the range already proved in \cite{DPP}. Those runs corroborate the argument; they do not test new cases.
+
+\subsection{Method}
+
+The proof follows the proof of \cite[Theorem~3.1]{DPP}. The cyclic group \(\Z_v\) acts on the blocks with \(N=(v-1)/6\) orbits of size \(v\). The edges of \(G\) inside one orbit form three \(2\)-regular graphs, called \emph{rims}. The edges between two orbits form nine perfect matchings, called \emph{spoke matchings}. Pair the orbits by a perfect matching of the complete graph \(K_N\). For each pair, the three rims of each orbit and three of the nine spoke matchings form three cubic graphs, called \emph{pieces}. Each piece uses one rim of each orbit and one spoke matching. Each piece is an I-graph (Section~\ref{sec:defs}). If each piece has a proper \(3\)-edge-colouring, the colours add up to exactly \(k\).
+
+Darijani, Pike and Poulin use the condition on \(\varphi\) to arrange that every piece is a generalised Petersen graph. Without that condition, a piece may be a disjoint union of I-graphs of three kinds: generalised Petersen graphs, proper I-graphs, and Petersen graphs. We treat them as follows.
+\begin{itemize}
+\item Generalised Petersen graphs other than \(G(n,2)\) with \(n\equiv5\pmod6\) are Hamiltonian by Alspach's theorem, as stated in \cite[Theorem~1.1]{BP}. A cubic Hamiltonian graph is \(3\)-edge-colourable.
+\item The graphs \(G(n,2)\) with \(n\equiv 5\pmod 6\), \(n\ge11\), get an explicit colouring (Lemma~G). It rests on a table of 17 finite checks.
+\item Proper I-graphs get an explicit colouring (Lemma~N1). That they are \(3\)-edge-colourable is known \cite[\S7, p.~20]{BP} (arXiv v1, \S7, p.~23); Lemma~N1 gives a direct proof.
+\item The only piece with Petersen components is \(I(v,v/5,2v/5)\). It is avoided by the choice of the pairing (Lemma~E).
+\end{itemize}
+
+\subsection{What is proved by hand, by computer and in Lean}
+
+Every step of the proof of Theorem~\ref{thm:main} is proved by hand in this paper, except two. First, Alspach's theorem is cited, in the form stated by Bonvicini and Pisanski; we did not read Alspach's paper. Second, Lemma~G uses a finite table of 17 checks. The table is printed in full and can be checked by hand. It is also verified by two independent pairs of programs (Section~\ref{sec:computer}) and by the Lean~4 kernel (Section~\ref{sec:lean}). The argument that turns the table into a colouring for every \(n\) is by hand. The rest of Section~\ref{sec:computer} lists computer checks that only corroborate the proof.
+
+\subsection{Credit lines}\label{sec:credits}
+
+No novelty or priority claim is made. These credit lines were written at the final pre-release check of 2026-11-27 and approved by the repository owner.
+
+\emph{The conjecture.} S.~M. Cioab\u{a}, K.~Guo and W.~H. Haemers, \emph{The chromatic index of strongly regular graphs}, arXiv:1810.06660 (first version 2018-10); Ars Math. Contemp. 20 (2021) 187--194 \cite{CGH}. Conjecture~1.2. For Steiner triple systems the question was posed earlier by I.~Darijani, D.~A. Pike and J.~Poulin, \emph{The chromatic index of block intersection graphs of Kirkman triple systems and cyclic Steiner triple systems}, Australas. J. Combin. 69 (2017) 145--158 \cite{DPP}, Conjecture~1.3.
+
+\emph{Prior results and method.} Darijani, Pike and Poulin (2017) proved the cyclic case \(v\equiv 1\pmod{12}\) under \(\varphi(v)/(v-1)\ge 2/3\) (their Theorem~3.1), and the cyclic case \(v\equiv 9\pmod{12}\) (Theorem~4.1). The orbit decomposition, the pairing of orbits by a \(1\)-factorization of \(K_N\), the cubic generalised-Petersen pieces and the colour count are theirs. The argument here follows their proof of Theorem~3.1, treating the pieces as I-graphs and avoiding the Petersen pair \(\{v/5,2v/5\}\). Darijani's PhD thesis (Memorial University of Newfoundland, 2020) \cite{Dar} lists the remaining cyclic \(v\equiv 1\pmod{12}\) case as future work.
+
+\emph{Hamiltonicity and colouring of the pieces.} Generalised Petersen pieces: B.~Alspach, J. Combin. Theory Ser. B 34 (1983) 293--312 \cite{Als}. It is used as stated in Theorem~1.1 of S.~Bonvicini and T.~Pisanski, \emph{A novel characterization of cubic Hamiltonian graphs via the associated quartic graphs}, Ars Math. Contemp. 12 (2017) 1--24 \cite{BP} (arXiv:1508.01865). Independently, F.~Castagna and G.~Prins, Pacific J. Math. 40 (1972) 53--58 \cite{CP}, prove that every generalised Petersen graph except the Petersen graph is \(3\)-edge-colourable.
+
+\emph{Proper I-graph pieces.} The \(3\)-edge-colourability of every proper I-graph is known: Bonvicini and Pisanski record it (Ars Math. Contemp. 12 (2017), \S7, p.~20) as a consequence of their theorem that every connected I-graph other than \(G(n,2)\) with \(n\equiv 5\pmod 6\) is Hamiltonian. Lemma~N1 gives a short explicit \(3\)-edge-colouring of these graphs, so that this step does not depend on their case analysis. The lemma and its colouring were suggested by an AI referee in this project's review process (2026-11-27), and the proof was checked by hand. It is included for self-containment, not as a new result.
+
+\emph{Remark~\ref{rem:cyclic} (two readings of ``cyclic'').} The argument was suggested by an AI referee in this project's review process (2026-11-27) and was written out and checked.
+
+\emph{This work.} The proof, certificates and Lean check were produced 2026-11-27 by an AI research pipeline (Claude models: Opus, Fable, Sonnet) under the direction of the repository owner. The release commit is \ttt{0dcf830} in the private research repository.
+
+\subsection{Verification status}
+
+\textbf{Expert verification required.} Verified so far with: two independent AI referee reviews accepting with zero issues on the same commit (Claude Opus checker and Claude Fable adversary, round~3 at \ttt{955993e}; a third AI referee, Claude Sonnet, reported one minor wording point, since fixed); two independent certificate implementations for the one computational step (the 17-window table of Lemma~G); a Lean~4 kernel check of that finite table. The full theorem is not formalized. Section~\ref{sec:status} gives details.
+
+% =====================================================================
+\section{Definitions and notation}\label{sec:defs}
+
+\subsection{Edge colourings}
+A \emph{perfect matching} of a graph is a set of edges that covers every vertex exactly once. A \emph{\(1\)-factorization} is a partition of the edge set into perfect matchings. A graph is \emph{\(3\)-edge-colourable} if it has a proper edge colouring with three colours. A \emph{Hamilton cycle} is a cycle through all vertices.
+
+\begin{remark*}
+A \(k\)-regular graph is class~1 if and only if it has a \(1\)-factorization. Indeed, in a proper colouring with \(k\) colours every vertex meets all \(k\) colours, so every colour class is a perfect matching; conversely, the \(k\) matchings of a \(1\)-factorization are the colour classes of a proper \(k\)-colouring. In particular a cubic graph is \(3\)-edge-colourable exactly when it has a \(1\)-factorization.
+\end{remark*}
+
+\subsection{Steiner triple systems}
+In an \(\STS(v)\) two distinct blocks share at most one point. Counting pairs, there are \(v(v-1)/6\) blocks, and every point lies in \((v-1)/2\) blocks. An \(\STS(v)\) exists exactly when \(v\equiv1\) or \(3\pmod 6\). The block graph is a simple graph.
+
+\begin{definition}[cyclic]
+An \(\STS(v)\) is \emph{cyclic} if it has an automorphism (a permutation of the points that maps blocks to blocks) consisting of a single cycle of length \(v\). Relabelling the points along that cycle gives \(V=\Z_v\) and \(\cB+1=\cB\), where \(B+i=\{x+i : x\in B\}\). We call this the \emph{normal form}. Theorem~\ref{thm:main} is proved for this notion.
+\end{definition}
+
+Darijani, Pike and Poulin \cite[p.~147]{DPP} call an \(\STS(v)\) cyclic when its automorphism group contains a cyclic subgroup of order \(v\). At the start of their Section~3 they then assume the normal form without loss of generality. Darijani's thesis \cite[p.~6 and \S2.2]{Dar} does the same. A system that is cyclic in our sense is cyclic in theirs. The converse holds when \(v\) has at most three distinct prime divisors (Remark~\ref{rem:cyclic}), in particular for every \(v<5005\). For \(v\) with four or more distinct prime divisors we do not know whether the two notions differ, and Theorem~\ref{thm:main} claims only the normal form.
+
+\subsection{Notation}
+Throughout, \(v\equiv1\pmod{12}\) and \(v\ge 13\). We put
+\begin{equation}\label{eq:hNk}
+h=\frac{v-1}{2},\qquad N=\frac{v-1}{6},\qquad k=\frac{3(v-3)}{2}.
+\end{equation}
+For \(t\in\Z_v\) let \(\nrm{t}=\min\bigl(t \bmod v,\ (-t)\bmod v\bigr)\in\{0,1,\dots,h\}\). Then \(\nrm{t}=\nrm{-t}\), and \(\nrm{t}=0\) only for \(t=0\).
+
+\subsection{I-graphs}
+We use the definition of Bonvicini and Pisanski \cite[\S1]{BP}. Let \(n\ge3\) and \(1\le p,q\le n-1\) with \(p,q\ne n/2\). The \emph{I-graph} \(I(n,p,q)\) has vertices \(w_i,x_i\) for \(i\in\Z_n\) and the edges
+\[
+w_iw_{i+p}\ \ (\text{outer rim}),\qquad w_ix_i\ \ (\text{spokes}),\qquad x_ix_{i+q}\ \ (\text{inner rim}),\qquad i\in\Z_n .
+\]
+The conditions on \(p\) and \(q\) make each rim a \(2\)-regular graph on \(n\) vertices. So \(I(n,p,q)\) is a simple cubic graph with \(2n\) vertices and \(3n\) edges. The \emph{generalised Petersen graph} is \(G(n,q)=I(n,1,q)\). The Petersen graph is \(G(5,2)\). Following \cite{BP}, a \emph{proper} I-graph is a connected I-graph that is not isomorphic to a generalised Petersen graph.
+
+% =====================================================================
+\section{Results used from the literature}\label{sec:lit}
+
+The main line of the proof uses one published theorem. Bonvicini and Pisanski state it, citing Alspach \cite{Als}. All theorem numbers and pages of \cite{BP} below are those of the journal version. In arXiv:1508.01865v1, Theorems~1.1 and~1.2 are numbered Theorem~1 and Theorem~2, Lemma~6.5 is Lemma~31, and the remark of \S7 (journal p.~20) is on p.~23.
+
+\begin{cited}{Theorem BP1 (Alspach; \cite[Theorem~1.1]{BP})}
+A generalised Petersen graph \(G(n,q)\) is Hamiltonian if and only if it is not isomorphic to \(G(n,2)\) when \(n\equiv 5\pmod 6\).
+\end{cited}
+
+We use only this consequence: if \(1\le\kappa\le m-1\), \(\kappa\ne m/2\), and \(G(m,\kappa)\) has no Hamilton cycle, then \(m\equiv5\pmod6\) and \(G(m,\kappa)\cong G(m,2)\). The hypotheses on \((m,\kappa)\) are exactly those of the definition in \cite{BP}. We did not read Alspach's paper; we use the statement as printed in \cite{BP}.
+
+The next result is not used in the main line. We record it because it already implies the conclusion of Lemma~N1.
+
+\begin{cited}{Theorem BP2 (\cite[Theorem~1.2]{BP})}
+A connected I-graph is Hamiltonian if and only if it is not isomorphic to \(G(n,2)\) when \(n\equiv 5\pmod 6\).
+\end{cited}
+
+For proper I-graphs the proof in \cite{BP} rests on a case analysis drawn in figures (their Lemma~6.5). After the proof the authors note that a proper I-graph is therefore \(3\)-edge-colourable, equivalently \(1\)-factorizable \cite[\S7, p.~20]{BP}.
+
+For generalised Petersen graphs there is a second published source. Castagna and Prins \cite{CP} prove that every generalised Petersen graph other than the Petersen graph has a proper \(3\)-edge-colouring. Their paper treats some cases itself and refers the others, including all \(G(n,2)\), to Watkins \cite{Wat}. We could not read \cite{Wat}. For that reason the main line does not use \cite{CP}; it uses Theorem~BP1 and a direct colouring of \(G(n,2)\) (Lemma~G).
+
+% =====================================================================
+\section{Structure of the block graph}\label{sec:structure}
+
+Fix a cyclic \(\STS(v)\) \((\Z_v,\cB)\) in normal form, with \(v\equiv1\pmod{12}\), \(v\ge13\), and its block graph \(G\). The \emph{orbit} of a block \(B\) is \(\{B+i : i\in\Z_v\}\). Choose one \emph{base block} \(B_P\) in each orbit \(O_P\). This section describes the edges of \(G\) in terms of differences of points. It uses only the definitions.
+
+\begin{lettered}{A (orbits, differences, edges)}
+\begin{enumerate}
+\item Every orbit has exactly \(v\) blocks, the blocks \(B_P+i\) \((i\in\Z_v)\) are pairwise distinct, and there are exactly \(N\) orbits \(O_1,\dots,O_N\). The number \(N\) is even.
+\item For a block \(B\) let \(\Delta(B)\) be the list of its six ordered differences \(a-b\) (\(a,b\in B\), \(a\ne b\)), and let \(D(B)=\{\nrm{t} : t\in\Delta(B)\}\). Every non-zero element of \(\Z_v\) occurs exactly once in the concatenated list \(\Delta(B_1),\dots,\Delta(B_N)\). Consequently each \(D_P:=D(B_P)\) has exactly \(3\) elements, and \(D_1,\dots,D_N\) partition \(\{1,\dots,h\}\).
+\item (Inside an orbit.) For \(i\ne j\), the blocks \(B_P+i\) and \(B_P+j\) are adjacent if and only if \(\nrm{j-i}\in D_P\). For \(d\in D_P\) put
+\[
+R_P(d)=\bigl\{\,\{B_P+i,\ B_P+i+d\} : i\in\Z_v\,\bigr\}.
+\]
+Each \(R_P(d)\) is a set of \(v\) edges forming a \(2\)-regular spanning subgraph of \(G[O_P]\). The three sets \(R_P(d)\), \(d\in D_P\), are pairwise disjoint, and their union is the edge set of \(G[O_P]\).
+\item (Between orbits.) For \(P\ne Q\) put \(S_{PQ}=\{a-b : a\in B_P,\ b\in B_Q\}\subseteq\Z_v\). Then \(\abs{S_{PQ}}=9\), and \(B_P+i\) is adjacent to \(B_Q+j\) if and only if \(j-i\in S_{PQ}\). For \(s\in S_{PQ}\) put
+\[
+\mu^{PQ}_s=\bigl\{\,\{B_P+i,\ B_Q+i+s\} : i\in\Z_v\,\bigr\}.
+\]
+Each \(\mu^{PQ}_s\) is a perfect matching of \(O_P\cup O_Q\). The nine sets are pairwise disjoint, and their union is the set of all edges of \(G\) between \(O_P\) and \(O_Q\).
+\item \(G\) is regular of degree \(6+9(N-1)=k\), and \(E(G)\) is the disjoint union of all \(R_P(d)\) and all \(\mu^{PQ}_s\) \((P<Q)\).
+\end{enumerate}
+\end{lettered}
+
+\begin{proof}
+(1) Suppose \(B+t=B\) with \(t\ne0\). Then \(x\mapsto x+t\) permutes the three points of \(B\) without a fixed point, so it is a \(3\)-cycle on \(B\), and \(x+3t=x\) for \(x\in B\). Hence \(3t=0\) in \(\Z_v\). As \(\gcd(3,v)=1\), this gives \(t=0\), a contradiction. So every orbit has \(v\) distinct blocks. There are \(v(v-1)/6\) blocks, hence \((v-1)/6=N\) orbits. Writing \(v=12m+1\) gives \(N=2m\).
+
+(2) Let \(t\ne0\). The pair \(\{0,t\}\) lies in a block, which is \(B_P+i\) for some \(P\) and \(i\). Then \(-i\) and \(t-i\) lie in \(B_P\), and their difference is \(t\). So each of the \(v-1\) non-zero elements occurs at least once in a list of total length \(6N=v-1\). Hence each occurs exactly once. In particular the six elements of \(\Delta(B_P)\) are distinct. The list \(\Delta(B_P)\) is closed under \(t\mapsto -t\), and \(t\ne -t\) because \(v\) is odd. So the six elements form three pairs \(\{t,-t\}\), and \(\abs{D_P}=3\). Every \(d\in\{1,\dots,h\}\) lies in exactly one \(\Delta(B_P)\), hence in exactly one \(D_P\).
+
+(3) The blocks \(B_P+i\) and \(B_P+j\) share a point if and only if \(a+i=b+j\) for some \(a,b\in B_P\), that is, \(i-j=b-a\); here \(a\ne b\) because \(i\ne j\). So they share a point if and only if \(i-j\in\Delta(B_P)\), that is, \(\nrm{j-i}\in D_P\). Now fix \(d\in D_P\). The edges \(\{B_P+i,B_P+i+d\}\), \(i\in\Z_v\), are pairwise distinct: if \(\{i,i+d\}=\{j,j+d\}\) with \(i\ne j\), then \(i=j+d\) and \(i+d=j\), so \(2d=0\) and \(d=0\) (as \(v\) is odd), which is impossible. The vertex \(B_P+i\) lies in exactly two of these edges (indices \(i\) and \(i-d\)). An edge \(\{B_P+i,B_P+j\}\) of \(G[O_P]\) lies in \(R_P(d)\) exactly for \(d=\nrm{j-i}\). This gives the disjointness and the union.
+
+(4) The blocks \(B_P+i\) and \(B_Q+j\) share a point if and only if \(a+i=b+j\) for some \(a\in B_P\), \(b\in B_Q\), that is, \(j-i=a-b\in S_{PQ}\). Suppose \(a-b=a'-b'\) with \((a,b)\ne(a',b')\). If \(a=a'\) then \(b=b'\); so \(a\ne a'\), and likewise \(b\ne b'\). Then \(a-a'=b-b'\) is a non-zero element lying in both \(\Delta(B_P)\) and \(\Delta(B_Q)\), which contradicts~(2). So the nine differences are distinct. For fixed \(s\), the map \(B_P+i\mapsto B_Q+i+s\) is a bijection \(O_P\to O_Q\) by~(1), so \(\mu^{PQ}_s\) is a perfect matching of \(O_P\cup O_Q\). The edge \(\{B_P+i,B_Q+j\}\) lies in \(\mu^{PQ}_s\) exactly for \(s=j-i\).
+
+(5) By (3) a vertex has \(6\) neighbours in its own orbit, and by (4) it has \(9\) in each of the other \(N-1\) orbits. Now \(6+9(N-1)=9N-3=\tfrac{3(v-1)}{2}-3=k\). The decomposition of \(E(G)\) is (3) and (4) together.
+\end{proof}
+
+For example, for \(v=13\) take the base blocks \(\{0,1,4\}\) and \(\{0,2,7\}\) (the example system of \cite{DPP}). Then \(D_1=\{1,3,4\}\), \(D_2=\{2,5,6\}\), and \(S_{12}=\{0,11,6,1,12,7,4,2,10\}\) has nine distinct elements. The degree is \(6+9=15=k\).
+
+The next lemma identifies the cubic pieces. It uses Lemma~A.
+
+\begin{lettered}{B (the cubic pieces are I-graphs)}
+Let \(P\ne Q\), \(d\in D_P\), \(e\in D_Q\) and \(s\in S_{PQ}\). The subgraph of \(G\) with vertex set \(O_P\cup O_Q\) and edge set
+\begin{equation}\label{eq:piece}
+\Gamma=R_P(d)\ \cup\ \mu^{PQ}_s\ \cup\ R_Q(e)
+\end{equation}
+is isomorphic to \(I(v,d,e)\). Moreover \(1\le d,e\le h\) and \(d\ne e\).
+\end{lettered}
+
+\begin{proof}
+By Lemma~A(2), \(d,e\in\{1,\dots,h\}\), and \(d\ne e\) because \(D_P\cap D_Q=\emptyset\). Since \(h<v/2\), the triple \((v,d,e)\) satisfies the conditions in the definition of I-graphs. Map \(w_i\mapsto B_P+i\) and \(x_i\mapsto B_Q+i+s\). By Lemma~A(1) this is a bijection onto \(O_P\cup O_Q\). It sends the outer rim \(\{w_iw_{i+d}\}\) onto \(R_P(d)\) and the spokes \(\{w_ix_i\}\) onto \(\mu^{PQ}_s\). It sends the inner rim edge \(x_ix_{i+e}\) to \(\{B_Q+(i+s),B_Q+(i+s)+e\}\); as \(i\) runs over \(\Z_v\), these are exactly the edges of \(R_Q(e)\).
+\end{proof}
+
+% =====================================================================
+\section{Colouring the pieces}\label{sec:pieces}
+
+This section shows that every piece \(I(v,d,e)\) with \(\{d,e\}\ne\{v/5,2v/5\}\) is \(3\)-edge-colourable (Lemma~D\('\)), and that the excluded pair never lies in one orbit (Lemma~E). It ends with the classical \(1\)-factorization of \(K_N\) (Lemma~F). The lemmas of this section are about I-graphs and do not use Section~\ref{sec:structure}, except Lemma~E, which uses Lemma~A(2).
+
+\subsection{Components}
+
+\begin{lettered}{C (components of an I-graph)}
+Let \(1\le p,q<n/2\) and \(g=\gcd(n,p,q)\). Then \(I(n,p,q)\) is the vertex-disjoint union of \(g\) subgraphs, each isomorphic to \(I(n/g,\ p/g,\ q/g)\), and \(I(n/g,p/g,q/g)\) is connected. In particular an I-graph with \(\gcd(n,p,q)=1\) is connected.
+\end{lettered}
+
+\begin{proof}
+First, \((n/g,p/g,q/g)\) satisfies the conditions of the definition: \(1\le p/g<(n/g)/2\) gives \(n/g>2\), and the same bound holds for \(q/g\). Since \(g\) divides \(n\), the residue \(i\bmod g\) of an index \(i\in\Z_n\) is well defined. Since \(g\) divides \(p\) and \(q\), every edge joins two vertices whose indices have the same residue mod \(g\). For \(r\in\{0,\dots,g-1\}\) the map \(w'_t\mapsto w_{r+gt}\), \(x'_t\mapsto x_{r+gt}\) (\(t\in\Z_{n/g}\)) is well defined. It is a bijection onto the vertices with index \(\equiv r\pmod g\). It sends the edges \(w'_tw'_{t+p/g}\), \(w'_tx'_t\), \(x'_tx'_{t+q/g}\) of \(I(n/g,p/g,q/g)\) onto the edges \(w_iw_{i+p}\), \(w_ix_i\), \(x_ix_{i+q}\) with \(i=r+gt\). So the vertices of residue \(r\) induce a copy of \(I(n/g,p/g,q/g)\), and there are no edges between different residues.
+
+Now let \(\gcd(m,a,b)=1\) and consider \(I(m,a,b)\). From \(w_i\) one reaches \(w_{i+a}\) along the outer rim, and \(w_{i+b}\) along the path \(w_i,x_i,x_{i+b},w_{i+b}\). So \(w_0\) reaches every \(w_t\) with \(t\) in the subgroup of \(\Z_m\) generated by \(a\) and \(b\). That subgroup is all of \(\Z_m\) because \(\gcd(m,a,b)=1\). Every \(x_t\) is adjacent to \(w_t\). So \(I(m,a,b)\) is connected.
+\end{proof}
+
+\subsection{The graphs \texorpdfstring{\(G(n,2)\)}{G(n,2)} with \texorpdfstring{\(n\equiv5\pmod 6\)}{n = 5 mod 6}}
+
+By Theorem~BP1, these are the only non-Hamiltonian generalised Petersen graphs. The next lemma colours them, except \(G(5,2)\), the Petersen graph.
+
+\begin{lettered}{G}
+For every integer \(j\ge0\) the graph \(G(11+6j,2)\) is \(3\)-edge-colourable.
+\end{lettered}
+
+The proof encodes a colouring as a cyclic word of symbols, reduces properness to a local condition on three consecutive symbols, and then exhibits three words whose concatenations satisfy that condition.
+
+\begin{proof}
+Let \(n\ge5\). The edges of \(G(n,2)=I(n,1,2)\) are \(w_iw_{i+1}\), \(w_ix_i\) and \(x_ix_{i+2}\) (\(i\in\Z_n\)), all distinct. An edge colouring with colours \(1,2,3\) is the same thing as a cyclic sequence \(t_0,\dots,t_{n-1}\) of \emph{symbols} \(t_i=(O_i,S_i,I_i)\in\{1,2,3\}^3\), where \(O_i\), \(S_i\) and \(I_i\) are the colours of \(w_iw_{i+1}\), \(w_ix_i\) and \(x_ix_{i+2}\). The edges at \(w_i\) are \(w_{i-1}w_i\), \(w_iw_{i+1}\), \(w_ix_i\). The edges at \(x_i\) are \(w_ix_i\), \(x_ix_{i+2}\), \(x_{i-2}x_i\). In each case they are three distinct edges, as \(n\ge5\). So the colouring is proper if and only if, for every \(i\in\Z_n\), the \emph{window} \((t_{i-2},t_{i-1},t_i)\) is \emph{good}, meaning
+\begin{equation}\label{eq:good}
+O_{i-1},\ O_i,\ S_i\ \text{ are pairwise distinct}\qquad\text{and}\qquad S_i,\ I_i,\ I_{i-2}\ \text{ are pairwise distinct}.
+\end{equation}
+
+Write a symbol as the three-digit string \(O\,S\,I\). Define three words:
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Word & Length & Symbols \\
+\midrule
+\(X\) & 7 & \sym{321}, \sym{123}, \sym{232}, \sym{312}, \sym{213}, \sym{313}, \sym{121} \\
+\(Y\) & 4 & \sym{321}, \sym{123}, \sym{323}, \sym{121} \\
+\(Z\) & 6 & \sym{321}, \sym{123}, \sym{232}, \sym{312}, \sym{213}, \sym{131} \\
+\bottomrule
+\end{tabular}
+\end{center}
+All three begin with the same two symbols \(\pi=\sym{321}\) and \(\rho=\sym{123}\). For a word \(W\) let \(W^+=W\pi\rho\), the word followed by these two symbols, indexed from \(0\).
+
+\emph{Table.} Every window \((t_{i-2},t_{i-1},t_i)\) of \(X^+\), \(Y^+\) and \(Z^+\) with \(2\le i\le \abs{W}+1\) is good, as Table~\ref{tab:windows} shows. In every row both triples are permutations of \(1,2,3\). This is the only computational step of the proof (Section~\ref{sec:computer}).
+
+\emph{Concatenation.} Let \(T=W_1W_2\cdots W_r\) with \(r\ge 2\) and each \(W_s\in\{X,Y,Z\}\), read cyclically, of total length \(n\). We claim that every cyclic window of \(T\) is good. Take a position \(i\) of \(T\). It lies in some \(W_s\) at offset \(c\), with \(0\le c<\abs{W_s}\). If \(c\ge2\), the window \((t_{i-2},t_{i-1},t_i)\) lies inside \(W_s\), and it is the row with index \(c\) of the table for \(W_s^+\) (note \(c\le \abs{W_s}-1\)). If \(c\in\{0,1\}\), the window consists of the last \(2-c\) symbols of the preceding word \(W_{s-1}\) (cyclically; it has length at least \(4\)) followed by the first \(c+1\) symbols of \(W_s\). Since \(W_s\) begins with \(\pi\rho\), this is the window with index \(\abs{W_{s-1}}+c\) of \(W_{s-1}^+\), which is in the table. This proves the claim.
+
+Take \(T=XYZ^j\) with \(j\ge0\). Its length is \(7+4+6j=11+6j\ge 11\). By the claim and the equivalence~\eqref{eq:good}, \(T\) defines a proper \(3\)-edge-colouring of \(G(11+6j,2)\).
+\end{proof}
+
+\begin{table}[ht]
+\caption{The 17 windows of Lemma~G. The last two columns list the three colours at \(w_i\) and at \(x_i\).}\label{tab:windows}
+\begin{tabular}{cccccc}
+\toprule
+\(W^+\), \(i\) & \(t_{i-2}\) & \(t_{i-1}\) & \(t_i\) & \(O_{i-1},O_i,S_i\) & \(S_i,I_i,I_{i-2}\) \\
+\midrule
+\(X^+\), 2 & \sym{321} & \sym{123} & \sym{232} & 1,2,3 & 3,2,1 \\
+\(X^+\), 3 & \sym{123} & \sym{232} & \sym{312} & 2,3,1 & 1,2,3 \\
+\(X^+\), 4 & \sym{232} & \sym{312} & \sym{213} & 3,2,1 & 1,3,2 \\
+\(X^+\), 5 & \sym{312} & \sym{213} & \sym{313} & 2,3,1 & 1,3,2 \\
+\(X^+\), 6 & \sym{213} & \sym{313} & \sym{121} & 3,1,2 & 2,1,3 \\
+\(X^+\), 7 & \sym{313} & \sym{121} & \sym{321} & 1,3,2 & 2,1,3 \\
+\(X^+\), 8 & \sym{121} & \sym{321} & \sym{123} & 3,1,2 & 2,3,1 \\
+\midrule
+\(Y^+\), 2 & \sym{321} & \sym{123} & \sym{323} & 1,3,2 & 2,3,1 \\
+\(Y^+\), 3 & \sym{123} & \sym{323} & \sym{121} & 3,1,2 & 2,1,3 \\
+\(Y^+\), 4 & \sym{323} & \sym{121} & \sym{321} & 1,3,2 & 2,1,3 \\
+\(Y^+\), 5 & \sym{121} & \sym{321} & \sym{123} & 3,1,2 & 2,3,1 \\
+\midrule
+\(Z^+\), 2 & \sym{321} & \sym{123} & \sym{232} & 1,2,3 & 3,2,1 \\
+\(Z^+\), 3 & \sym{123} & \sym{232} & \sym{312} & 2,3,1 & 1,2,3 \\
+\(Z^+\), 4 & \sym{232} & \sym{312} & \sym{213} & 3,2,1 & 1,3,2 \\
+\(Z^+\), 5 & \sym{312} & \sym{213} & \sym{131} & 2,1,3 & 3,1,2 \\
+\(Z^+\), 6 & \sym{213} & \sym{131} & \sym{321} & 1,3,2 & 2,1,3 \\
+\(Z^+\), 7 & \sym{131} & \sym{321} & \sym{123} & 3,1,2 & 2,3,1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For \(n=11\) (\(j=0\)) the colours for \(i=0,\dots,10\) are \(O_i\): \ttt{3 1 2 3 2 3 1 3 1 3 1}, \(S_i\): \ttt{2 2 3 1 1 1 2 2 2 2 2}, \(I_i\): \ttt{1 3 2 2 3 3 1 1 3 3 1}.
+
+\subsection{Proper I-graphs}
+
+The next lemma is an explicit colouring. Its conclusion is known (Theorem~BP2 and the remark after it); see the credit lines in Section~\ref{sec:credits}.
+
+\begin{lettered}{N1}
+Let \(I(n,p,q)\) be an I-graph and put \(u=\gcd(n,p)\) and \(t=\gcd(n,q)\). If \(u\ge2\), \(t\ge2\) and \(\gcd(u,t)=1\), then \(I(n,p,q)\) is \(3\)-edge-colourable. In particular, if \(\gcd(n,p)\ge2\), \(\gcd(n,q)\ge2\) and \(\gcd(n,p,q)=1\), then \(I(n,p,q)\) is \(3\)-edge-colourable, because \(\gcd(u,t)=\gcd(n,p,q)\).
+\end{lettered}
+
+By \cite{BP}, citing \cite{BPZ}, the I-graphs in the last sentence are exactly the proper I-graphs; only the gcd conditions are used here. The proof gives each index \(i\) two coordinates, one modulo \(u\) and one modulo \(t\), and colours each edge by a formula in \(\Z_3\) built from proper colourings of two cycles.
+
+\begin{proof}
+Colours are elements of \(\Z_3\).
+
+\emph{Step 1 (two coordinates).} Since \(u\mid n\) and \(t\mid n\), the residues \(i\bmod u\) and \(i\bmod t\) of \(i\in\Z_n\) are well defined. Any common divisor of \(p\) and \(t\) divides \(\gcd(n,p)=u\) and \(t\), hence divides \(\gcd(u,t)=1\). So \(p\) is invertible modulo \(t\). In the same way \(q\) is invertible modulo \(u\). Define
+\[
+x(i)=q^{-1}i \bmod u\ \in\Z_u,\qquad y(i)=p^{-1}i \bmod t\ \in\Z_t\qquad(i\in\Z_n).
+\]
+As \(u\mid p\) and \(t\mid q\),
+\begin{equation}\label{eq:shift}
+x(i+p)=x(i),\qquad y(i+p)=y(i)+1,\qquad x(i+q)=x(i)+1,\qquad y(i+q)=y(i).
+\end{equation}
+
+\emph{Step 2 (proper colourings of cycles).} For \(L\ge2\) define \(\varepsilon_L:\Z_L\to\Z_3\) by \(\varepsilon_L(j)=j\bmod2\) for \(0\le j\le L-1\), except that \(\varepsilon_L(L-1)=2\) when \(L\) is odd. Then \(\varepsilon_L(j)\ne\varepsilon_L(j-1)\) for every \(j\in\Z_L\). Indeed, for \(1\le j\le L-1\) the pair \(\varepsilon_L(j-1),\varepsilon_L(j)\) is \((j-1)\bmod 2,\ j\bmod2\), and these differ, except when \(L\) is odd and \(j=L-1\); then the pair is \((L-2)\bmod2=1\) and \(2\), which differ. For \(j=0\) the pair is \(\varepsilon_L(L-1),\varepsilon_L(0)\), which is \(1,0\) when \(L\) is even and \(2,0\) when \(L\) is odd. Put, in \(\Z_3\),
+\[
+r(x)=-\varepsilon_u(x-1)-\varepsilon_u(x)\quad(x\in\Z_u),\qquad s(y)=-\varepsilon_t(y-1)-\varepsilon_t(y)\quad(y\in\Z_t).
+\]
+
+\emph{Step 3 (the colouring).} Each edge of \(I(n,p,q)\) has a unique index \(i\in\Z_n\) and type: the outer rim edge \(w_iw_{i+p}\), the spoke \(w_ix_i\), or the inner rim edge \(x_ix_{i+q}\). (For uniqueness: \(\{w_i,w_{i+p}\}=\{w_j,w_{j+p}\}\) with \(i\ne j\) forces \(i=j+p\) and \(j=i+p\), so \(2p\equiv0\) and \(p=n/2\), which is excluded; likewise for the inner rim.) With \(x=x(i)\) and \(y=y(i)\), colour
+\[
+c(w_iw_{i+p})=\varepsilon_t(y)+r(x),\qquad c(x_ix_{i+q})=\varepsilon_u(x)+s(y),\qquad c(w_ix_i)=r(x)+s(y).
+\]
+
+\emph{Step 4 (an elementary fact).} If \(\alpha,\beta\in\Z_3\) and \(\alpha\ne\beta\), then \(\alpha\), \(\beta\) and \(-\alpha-\beta\) are pairwise distinct. Indeed \(-\alpha-\beta=\alpha\) would give \(\beta=-2\alpha=\alpha\), and \(-\alpha-\beta=\beta\) would give \(\alpha=-2\beta=\beta\).
+
+\emph{Step 5 (the vertex \(w_i\)).} The three edges at \(w_i\) are \(w_iw_{i+p}\) (index \(i\)), \(w_{i-p}w_i\) (outer rim, index \(i-p\)) and the spoke \(w_ix_i\). They are distinct because the outer rim is \(2\)-regular. Let \(x=x(i)\) and \(y=y(i)\). By~\eqref{eq:shift}, \(x(i-p)=x\) and \(y(i-p)=y-1\). With \(\alpha=\varepsilon_t(y)\) and \(\beta=\varepsilon_t(y-1)\) the three colours are
+\[
+r(x)+\alpha,\qquad r(x)+\beta,\qquad r(x)+s(y)=r(x)-\beta-\alpha .
+\]
+Since \(\alpha\ne\beta\) (Step~2 with \(L=t\ge2\)), Step~4 shows that they are pairwise distinct.
+
+\emph{Step 6 (the vertex \(x_i\)).} The three edges at \(x_i\) are \(x_ix_{i+q}\) (index \(i\)), \(x_{i-q}x_i\) (inner rim, index \(i-q\)) and the spoke \(w_ix_i\). By~\eqref{eq:shift}, \(x(i-q)=x-1\) and \(y(i-q)=y\). With \(\alpha'=\varepsilon_u(x)\) and \(\beta'=\varepsilon_u(x-1)\) the three colours are
+\[
+s(y)+\alpha',\qquad s(y)+\beta',\qquad s(y)+r(x)=s(y)-\beta'-\alpha',
+\]
+pairwise distinct by Step~2 (with \(L=u\ge2\)) and Step~4.
+
+So every vertex meets three different colours, and \(c\) is a proper \(3\)-edge-colouring.
+\end{proof}
+
+The smallest \(n\) meeting the hypotheses is \(n=12\), with \(I(12,2,3)\). The smallest odd \(n\) is \(15\), with \(I(15,3,5)\). A proper I-graph \(I(m,a,b)\) needs two distinct primes dividing \(m\), and \(m\) divides \(v\) in our application. So proper pieces can occur only when \(v\) has at least two distinct prime divisors. The smallest such \(v\equiv1\pmod{12}\) is \(85=5\cdot17\) (for example the piece \(I(85,5,17)\)). This order lies inside the range of \cite[Theorem~3.1]{DPP}.
+
+\subsection{Connected I-graphs and the pieces}
+
+The next lemma combines Theorem~BP1, Lemma~G and Lemma~N1.
+
+\begin{lettered}{D}
+Let \(H=I(m,a,b)\) be an I-graph (so \(m\ge3\), \(1\le a,b\le m-1\) and \(a,b\ne m/2\)) with \(\gcd(m,a,b)=1\). If \(m\ne5\), then \(H\) is \(3\)-edge-colourable.
+\end{lettered}
+
+\begin{proof}
+\emph{Case 1: \(\gcd(m,a)\ge2\) and \(\gcd(m,b)\ge2\).} Then \(\gcd(\gcd(m,a),\gcd(m,b))=\gcd(m,a,b)=1\), so \(H\) is \(3\)-edge-colourable by Lemma~N1.
+
+\emph{Case 2: \(\gcd(m,a)=1\) or \(\gcd(m,b)=1\).} The map \(w_i\leftrightarrow x_i\) is an isomorphism \(I(m,a,b)\to I(m,b,a)\): it exchanges the two rims and fixes the spokes. So we may assume \(\gcd(m,a)=1\). Let \(c=a^{-1}\bmod m\). The map \(w_i\mapsto w_{ci}\), \(x_i\mapsto x_{ci}\) is a bijection of the vertex set, as \(c\) is a unit. It sends \(w_iw_{i+a}\) to \(w_{ci}w_{ci+1}\), \(w_ix_i\) to \(w_{ci}x_{ci}\), and \(x_ix_{i+b}\) to \(x_{ci}x_{ci+cb}\). So \(H\cong G(m,\kappa)=I(m,1,\kappa)\) with \(\kappa\equiv cb\pmod m\) and \(1\le\kappa\le m-1\). Also \(\kappa\ne m/2\): otherwise \(2cb\equiv0\), so \(2b\equiv0\pmod m\) and \(b=m/2\), which is excluded. So Theorem~BP1 applies to \(G(m,\kappa)\).
+\begin{itemize}
+\item If \(G(m,\kappa)\) has a Hamilton cycle \(C\), then \(C\) has even length \(2m\). Colour its edges alternately \(1\) and \(2\). Every vertex has exactly one edge outside \(C\), so the remaining edges form a perfect matching; colour them \(3\). This is a proper \(3\)-edge-colouring.
+\item If \(G(m,\kappa)\) has no Hamilton cycle, then by Theorem~BP1, \(m\equiv5\pmod 6\) and \(G(m,\kappa)\cong G(m,2)\). As \(m\ne5\), we have \(m=11+6j\) with \(j\ge0\), and \(G(m,2)\) is \(3\)-edge-colourable by Lemma~G.
+\end{itemize}
+In each case the colouring is transported to \(H\) by the isomorphism.
+\end{proof}
+
+For \(m=5\) the lemma says nothing, and nothing is needed, as the next lemma shows. It uses Lemmas~C and~D.
+
+\begin{lettered}{D\('\) (which pieces are \(3\)-edge-colourable)}
+Let \(v\) be odd, \(h=(v-1)/2\), and \(1\le d,e\le h\) with \(d\ne e\). If \(\{d,e\}\ne\{v/5,2v/5\}\) (in particular whenever \(5\nmid v\)), then \(I(v,d,e)\) is \(3\)-edge-colourable.
+\end{lettered}
+
+\begin{proof}
+Let \(g=\gcd(v,d,e)\) and \(m=v/g\). By Lemma~C, \(I(v,d,e)\) is a disjoint union of copies of the connected I-graph \(I(m,d/g,e/g)\), so it suffices to colour that graph. Here \(m\) is odd, as it divides \(v\). The numbers \(a=d/g\) and \(b=e/g\) satisfy \(1\le a,b\le(m-1)/2\) (since \(a\le h/g<m/2\)) and \(a\ne b\). Two distinct integers in \(\{1,\dots,(m-1)/2\}\) need \((m-1)/2\ge2\), so \(m\ge5\). Also \(\gcd(m,a,b)=1\) by the choice of \(g\). If \(m\ne5\), Lemma~D applies.
+
+Suppose \(m=5\). Then \(5\mid v\) and \(g=v/5=:f\). Both \(d\) and \(e\) are multiples of \(f\) in \(\{1,\dots,h\}\), and \(h=(5f-1)/2<3f\), so \(d,e\in\{f,2f\}\). As \(d\ne e\), we get \(\{d,e\}=\{f,2f\}=\{v/5,2v/5\}\), which is excluded.
+\end{proof}
+
+The excluded graph \(I(v,v/5,2v/5)\) is \(v/5\) disjoint copies of \(I(5,1,2)\), the Petersen graph, which is not \(3\)-edge-colourable. So this pair of differences must be avoided. The next lemma shows that it always can be. It uses Lemma~A(2).
+
+\begin{lettered}{E (\(v/5\) and \(2v/5\) lie in different orbits)}
+Suppose \(5\mid v\) and put \(f=v/5\). Then no base block \(B_P\) has both \(f\in D_P\) and \(2f\in D_P\).
+\end{lettered}
+
+\begin{proof}
+Note \(1\le f<2f\le h\). Let \(B_P=\{x,y,z\}\) and \(\alpha=y-x\), \(\beta=z-y\), \(\gamma=x-z\). Then \(\alpha+\beta+\gamma=0\) and \(D_P=\{\nrm{\alpha},\nrm{\beta},\nrm{\gamma}\}\). Suppose \(f,2f\in D_P\). The relation \(\alpha+\beta+\gamma=0\) is symmetric, so we may assume \(\nrm{\alpha}=f\) and \(\nrm{\beta}=2f\), that is, \(\alpha=\pm f\) and \(\beta=\pm2f\). Then \(\gamma=-\alpha-\beta\in\{\pm f,\pm3f\}\). Since \(5f=0\) in \(\Z_v\), we have \(\nrm{3f}=\nrm{-2f}=2f\). So \(\nrm{\gamma}\in\{f,2f\}\) and \(\abs{D_P}\le2\), which contradicts Lemma~A(2).
+\end{proof}
+
+\subsection{Pairing the orbits}
+
+\begin{lettered}{F (\(1\)-factorization of \(K_N\))}
+For even \(N\ge2\) the edge set of the complete graph \(K_N\) is a disjoint union of \(N-1\) perfect matchings \(F_0,\dots,F_{N-2}\).
+\end{lettered}
+
+\begin{proof}
+For \(N=2\) take \(F_0\) to be the single edge. Let \(N\ge4\), and take the vertex set \(\Z_{N-1}\cup\{\infty\}\). For \(j\in\Z_{N-1}\) let
+\[
+F_j=\bigl\{\{\infty,j\}\bigr\}\ \cup\ \bigl\{\{j-t,\ j+t\} : 1\le t\le (N-2)/2\bigr\}.
+\]
+The number \(N-1\) is odd. For \(1\le t,t'\le(N-2)/2\), the equation \(j+t=j-t'\) would give \(t+t'\equiv0\) with \(2\le t+t'\le N-2\), which is impossible; and \(j\pm t\ne j\). So the \(N-2\) elements \(j\pm t\) are distinct and different from \(j\), and \(F_j\) is a perfect matching. An edge \(\{\infty,a\}\) lies only in \(F_a\). An edge \(\{a,b\}\subseteq\Z_{N-1}\) lies in \(F_j\) if and only if \(a+b=2j\). Since \(2\) is invertible modulo \(N-1\), this determines \(j\), and then \(\{a,b\}=\{j-t,j+t\}\) for the unique \(t\in\{1,\dots,(N-2)/2\}\) with \(t\equiv\pm(b-a)/2\). So every edge lies in exactly one \(F_j\).
+\end{proof}
+
+% =====================================================================
+\section{Proof of Theorem~\ref{thm:main}}\label{sec:proof}
+
+We colour \(E(G)\) with the colours \(1,\dots,k\) so that every colour class is a perfect matching of \(G\). We use the notation of Lemma~A. The proof pairs the orbits by Lemma~F, colours three pieces per pair with nine colours by Lemmas~B, D\('\) and~E, and gives each remaining spoke matching a colour of its own.
+
+\emph{Step 0 (pairing the orbits).} The number \(N\) is even (Lemma~A(1)). By Lemma~F there are perfect matchings \(F_0,\dots,F_{N-2}\) of the complete graph on \(\{1,\dots,N\}\) that partition its edge set. Write each pair as \(\{P,Q\}\) with \(P<Q\).
+
+\emph{Step 1 (choices for the pairs of \(F_0\)).} For each \(\{P,Q\}\in F_0\) choose
+\begin{itemize}
+\item a bijection \(\sigma:D_P\to D_Q\) such that \(\{d,\sigma(d)\}\ne\{v/5,2v/5\}\) for all \(d\in D_P\), and
+\item three distinct elements \(s_1,s_2,s_3\in S_{PQ}\) (possible since \(\abs{S_{PQ}}=9\), Lemma~A(4)).
+\end{itemize}
+Such a \(\sigma\) exists. If \(5\nmid v\) there is no condition. Let \(5\mid v\) and \(f=v/5\). If \(D_P\cup D_Q\) does not contain both \(f\) and \(2f\), there is again no condition. Otherwise, by Lemma~E, one of \(f,2f\) lies in \(D_P\) and the other in \(D_Q\); say \(f'\in D_P\) and \(f''\in D_Q\) with \(\{f',f''\}=\{f,2f\}\). The condition is \(\sigma(f')\ne f''\). Of the \(3!=6\) bijections exactly \(2\) have \(\sigma(f')=f''\), so \(4\) are allowed.
+
+\emph{Step 2 (nine colours on three pieces per pair of \(F_0\)).} Fix \(\{P,Q\}\in F_0\) and write \(D_P=\{d_1,d_2,d_3\}\). For \(t=1,2,3\) let
+\[
+\Gamma_t=R_P(d_t)\ \cup\ \mu^{PQ}_{s_t}\ \cup\ R_Q(\sigma(d_t)).
+\]
+By Lemma~B, \(\Gamma_t\cong I(v,d_t,\sigma(d_t))\) with \(1\le d_t,\sigma(d_t)\le h\) and \(d_t\ne\sigma(d_t)\). By the choice of \(\sigma\), \(\{d_t,\sigma(d_t)\}\ne\{v/5,2v/5\}\). So by Lemma~D\('\), \(\Gamma_t\) has a proper \(3\)-edge-colouring; use the colours \(3t-2\), \(3t-1\), \(3t\). Since \(\Gamma_t\) is cubic with vertex set \(O_P\cup O_Q\), each of these three colour classes is a perfect matching of \(O_P\cup O_Q\).
+
+The pieces \(\Gamma_1,\Gamma_2,\Gamma_3\) are pairwise edge-disjoint. They use different \(d_t\), different \(\sigma(d_t)\) (as \(\sigma\) is injective) and different \(s_t\), and the sets \(R_P(\cdot)\), \(R_Q(\cdot)\) and \(\mu^{PQ}_{(\cdot)}\) are pairwise disjoint by Lemma~A(3),(4). Together the pieces contain all edges of \(G[O_P]\) and of \(G[O_Q]\) (every \(d\in D_P\) is used and, as \(\sigma\) is onto, every \(e\in D_Q\)), and exactly three of the nine matchings \(\mu^{PQ}_s\).
+
+\emph{Step 3 (six more colours per pair of \(F_0\)).} The six remaining matchings \(\mu^{PQ}_s\), \(s\in S_{PQ}\setminus\{s_1,s_2,s_3\}\), receive the colours \(10,\dots,15\), one colour each. Each is a perfect matching of \(O_P\cup O_Q\) (Lemma~A(4)).
+
+Do Steps 1--3 for every pair of \(F_0\), with the same colours \(1,\dots,15\) for every pair. The pairs of \(F_0\) partition \(\{1,\dots,N\}\), so the sets \(O_P\cup O_Q\) partition the vertex set of \(G\). Hence each colour \(c\in\{1,\dots,15\}\) is now a perfect matching of \(G\): it is the union, over the pairs of \(F_0\), of one perfect matching of each \(O_P\cup O_Q\).
+
+\emph{Step 4 (nine colours for each further matching \(F_j\)).} For \(j=1,\dots,N-2\) and each pair \(\{P,Q\}\in F_j\), give the nine matchings \(\mu^{PQ}_s\), \(s\in S_{PQ}\), the nine colours \(15+9(j-1)+1,\dots,15+9j\), one colour each. As before, the pairs of \(F_j\) partition the orbits, so each of these colours is a perfect matching of \(G\).
+
+\emph{Every edge is coloured exactly once.} By Lemma~A(5), \(E(G)\) is the disjoint union of the sets \(R_P(d)\) (\(1\le P\le N\), \(d\in D_P\)) and \(\mu^{PQ}_s\) (\(P<Q\), \(s\in S_{PQ}\)). Each orbit \(P\) lies in exactly one pair of \(F_0\), and there each \(R_P(d)\) lies in exactly one piece \(\Gamma_t\) (Step~2). Each pair \(\{P,Q\}\) lies in exactly one \(F_j\) (Lemma~F). If \(j=0\), its nine matchings are coloured in Steps~2 and~3 (three inside the pieces, six directly). If \(j\ge1\), they are coloured in Step~4. Nothing is coloured twice.
+
+\emph{Colour count.} The colours used are \(1,\dots,15+9(N-2)\), and
+\begin{equation}\label{eq:count}
+15+9(N-2)=9N-3=\frac{3(v-1)}{2}-3=\frac{3(v-3)}{2}=k .
+\end{equation}
+This equals the degree of \(G\) (Lemma~A(5)). So \(E(G)\) is partitioned into \(k\) perfect matchings, and \(G\) is class~1. \qed
+
+\emph{The two smallest orders.} For \(v=13\) we have \(N=2\) and \(k=15\). Here \(F_0\) is the only matching and Step~4 is empty. Every piece \(I(13,d,e)\) is a connected generalised Petersen graph with \(13\not\equiv5\pmod6\), so it is Hamiltonian by Theorem~BP1. For \(v=25\) we have \(N=4\), \(k=33\), \(f=5\) and \(2f=10\). A piece \(I(25,d,e)\) is disconnected only for \(\{d,e\}=\{5,10\}\) (five Petersen graphs), and Step~1 forbids exactly this pair.
+
+% =====================================================================
+\section{Proofs of Remark~\ref{rem:srg} and Remark~\ref{rem:cyclic}}\label{sec:consequences}
+
+Neither proof is used in the proof of Theorem~\ref{thm:main}.
+
+\begin{proof}[Proof of Remark~\ref{rem:srg}]
+This is classical. The degree is \(k=3(v-3)/2\) by Lemma~A(5). Let two blocks \(B,B'\) share the point \(x\). A common neighbour either contains \(x\), or meets \(B\) in a point \(a\ne x\) and \(B'\) in a point \(a'\ne x\), and is then the block through \(a\) and \(a'\). There are \((v-1)/2-2\) common neighbours of the first kind. The four of the second kind are pairwise distinct and miss \(x\), because a block containing two points of \(B\) is \(B\), and likewise for \(B'\). That gives \(\lambda=(v-5)/2+4=(v+3)/2\). If \(B\cap B'=\emptyset\), the common neighbours are exactly the nine blocks through one point of \(B\) and one point of \(B'\), pairwise distinct for the same reason; so \(\mu=9\). Since any two non-adjacent vertices have a common neighbour, \(G\) is connected. The order \(v(v-1)/6=vN\) is even because \(N\) is even (Lemma~A(1)). The graph has at least \(26\) vertices, so it is not the Petersen graph.
+\end{proof}
+
+\begin{proof}[Proof of Remark~\ref{rem:cyclic}]
+(a) \emph{Fixed points.} Let \(\phi\ne\id\) be an automorphism and \(F\) its set of fixed points. If \(a,b\in F\), the third point of the block through \(a,b\) is fixed too. So \(F\) is \emph{closed}: a block with two points in \(F\) lies in \(F\). Suppose \(\abs{F}\ge2\), and take \(z\notin F\). For \(a\in F\) let \(c_a\) be the third point of the block through \(z\) and \(a\). Then \(c_a\notin F\) (otherwise \(z\in F\) by closure), \(c_a\ne z\), and \(c_a\ne c_b\) for \(a\ne b\) (the block through \(z\) and \(c_a\) is unique). So \(v\ge\abs{F}+1+\abs{F}\), that is, \(\abs{F}\le(v-1)/2\). This also holds when \(\abs{F}\le1\), as \(v\ge3\).
+
+(b) Let \(g\) have order \(v\), and suppose that \(g\) has no cycle of length \(v\). The cycle lengths divide \(v\), so each is a proper divisor of \(v\). Each point \(x\) therefore lies in a cycle whose length divides \(v/p\) for some prime \(p\mid v\); then \(x\) is fixed by \(g^{v/p}\), which is not the identity. Write \(F_p\) for the fixed set of \(g^{v/p}\). The sets \(F_p\) (\(p\mid v\) prime) cover the points, each has at most \((v-1)/2\) points by~(a), and each is a union of cycles of \(g\).
+
+With one prime, \(v\le(v-1)/2\), which is impossible. With two primes, \(v\le(v-1)/2+(v-1)/2\), which is impossible. Let there be three primes \(p,q,r\), with \(v=p^aq^br^c\). Put \(A=F_p\), \(B=F_q\), \(C=F_r\), and let \(A_0\) be the set of points in \(A\) only, and so on. Since \(\abs{A\cup B}\le v-1\), some point lies in \(C\) only, so \(C_0\ne\emptyset\); likewise \(A_0,B_0\ne\emptyset\). Take \(x\in A_0\) and \(z\in B_0\), and let \(y\) be the third point of their block. If \(y\in A\), then \(z\in A\) by closure of \(A\), which is false. So \(y\notin A\); likewise \(y\notin B\); hence \(y\in C_0\). For fixed \(x\) the map \(z\mapsto y\) is injective (the block through \(x\) and \(y\) is unique), so \(\abs{B_0}\le\abs{C_0}\). By symmetry \(\abs{A_0}=\abs{B_0}=\abs{C_0}=:n_0>0\). A point of \(A_0\) lies in a cycle whose length \(\ell\) divides \(v/p\) but neither \(v/q\) nor \(v/r\); hence \(q^b\mid\ell\) and \(r^c\mid\ell\). The set \(A_0\) is a union of such cycles, so \(q^br^c\mid n_0\). Symmetrically \(p^ar^c\mid n_0\) and \(p^aq^b\mid n_0\), so \(v\mid n_0\). But \(3n_0\le v\), a contradiction.
+
+Finally, a number \(v\equiv1\pmod{12}\) is prime to \(6\). The smallest product of four distinct primes greater than \(3\) is \(5\cdot7\cdot11\cdot13=5005=12\cdot417+1\). The computation in Section~\ref{sec:computer} confirms that \(5005\) is the smallest \(v\equiv1\pmod{12}\) with four distinct prime divisors.
+\end{proof}
+
+% =====================================================================
+\section{Computer verification}\label{sec:computer}
+
+\subsection{The certified step}
+The proof has one computational step: the 17 windows of Table~\ref{tab:windows} (Lemma~G). It is exact and uses integers only. Its status is \emph{certified}: two independent pairs of programs agree, and their outputs are archived. All runs used Python 3.12.10 and Node.js v24.20.0 on Windows~11. Paths in the table are relative to the root of the accompanying repository, \url{https://github.com/nebulousice/cioaba-guo-haemers-conjecture-cyclic-sts}.
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.2\textwidth}>{\raggedright\arraybackslash}p{0.4\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
+\toprule
+Program & What it checks & Archived output \\
+\midrule
+\nolinkurl{cert/CG/cg_windows.py} (Python, standard library) & The common prefix \(\pi\rho\); the 17 windows; the table printed in the proof equals the recomputed one; 102 of 102 single-entry mutations of the words are rejected & \nolinkurl{cert/CG/out/run_db574df/cg_windows.out} \\
+\nolinkurl{cert/CG/cg_graph_x.js} (Node.js, no packages) & Builds \(G(11+6j,2)\) explicitly and checks the colouring by \(XYZ^j\) vertex by vertex for \(0\le j\le2000\); all 3276 cyclic words of \(r\) factors from \(\{X,Y,Z\}\), \(2\le r\le7\); the \(n=11\) colour strings; controls & \nolinkurl{cert/CG/out/run_db574df/cg_graph_x.out} \\
+\nolinkurl{cert/C-G/cg_windows_a.py} (Python, standard library) & The 17 windows; the printed table (17 rows, 0 mismatches); \(XYZ^j\) for \(0\le j\le500\); all 3276 words with \(2\le r\le7\); 102 corruptions rejected & \nolinkurl{cert/C-G/out/run_db574df/cg_windows_a.out} \\
+\nolinkurl{cert/C-G/cg_graph_b.py} (networkx 3.7, python-sat 1.9.dev25) & The 17 vertex conditions; \(XYZ^j\) gives three perfect matchings of \(G(11+6j,2)\) for \(0\le j\le500\); SAT control: \(G(5,2)\) is not \(3\)-edge-colourable, \(G(11,2)\) is & \nolinkurl{cert/C-G/out/run_db574df/cg_graph_b.out} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All four outputs end in PASS. The archived outputs were produced by the following two commands, run from the root of the research repository:
+\begin{quote}
+\small
+\ttt{bash targets/cioaba-guo-haemers/cert/CG/run\_cg.sh}\\
+\ttt{bash targets/cioaba-guo-haemers/cert/C-G/run\_cg.sh 500 7 python}
+\end{quote}
+The file \ttt{REPRODUCE.md} explains how to run the certificates in the accompanying repository, with the exact commands, versions, runtimes and expected output lines. All four programs were rerun from a fresh clone of the release commit \ttt{0dcf830} on 2026-11-27, again with PASS; those outputs are in \nolinkurl{final_gate_rerun_0dcf830/}. The checks for \(j\le2000\) and \(j\le500\) only corroborate; the proof for all \(j\) is the concatenation argument of Lemma~G.
+
+\subsection{Corroboration (numerical)}
+The following checks are single implementations. No step of the proof depends on them. All use Python 3.12.10 with the standard library only.
+\begin{itemize}
+\item \ttt{prover/verify\_gn2.py 200}: the 17 windows again; \(XYZ^j\) properly colours \(G(11+6j,2)\) for \(0\le j\le200\); a corrupted word is rejected; exhaustive enumeration of all \(27^5\) symbol sequences finds no proper \(3\)-edge-colouring of \(G(5,2)\).
+\item \ttt{prover/verify\_N1.py 200 601}: the colouring of Lemma~N1 is proper on all 119208 triples \((n,p,q)\) with \(n\le200\) meeting its hypotheses, and on all 66141 connected proper \(I(m,a,b)\) with \(m\) odd, \(m\le601\), \(1\le a<b\le(m-1)/2\); all 3192 single-edge recolourings of the control instances are detected.
+\item \ttt{prover/verify\_small.py 13 25}: Lemma~C on all 1771 I-graphs \(I(n,p,q)\) with \(n\) odd, \(n\le45\); all 281 connected \(I(m,a,b)\) with \(m\) odd, \(m\le25\), \(a<b\), are \(3\)-edge-colourable except \((5,1,2)\); at \(v=85\), all 45 pieces with neither difference prime to 85 (16 proper, 29 disconnected) are \(3\)-edge-colourable except \((17,34)\); and the whole construction of Section~\ref{sec:proof} on every cyclic \(\STS\) on \(\Z_v\) for \(v=13\) (4 systems, 2040 assembled colourings) and \(v=25\) (240 systems, 1440 colourings), each checked to be a partition of the directly computed block graph into \(k\) perfect matchings.
+\item \ttt{prover/verify\_misc.py 60 100000}: the factorization of Lemma~F for every even \(N\) from \(4\) to \(60\), and the count~\eqref{eq:count} for every \(v\equiv1\pmod{12}\), \(13\le v\le100000\).
+\item \ttt{scripts/orders.py 200000}: the 199 orders \(v\equiv1\pmod{12}\) up to \(200000\) where \(\varphi(v)/(v-1)<2/3\), the smallest being \(385\); the smallest \(v\equiv1\pmod{12}\) with two distinct prime divisors, \(85\); and with four, \(5005\).
+\end{itemize}
+The runs at \(v=13\) and \(v=25\) meet no disconnected or proper piece and never reach Lemma~G. Lemma~C, Lemma~N1 and Lemma~G are exercised by the other checks listed. As explained in Section~\ref{sec:intro}, the orders \(13\), \(25\) and \(85\) all lie inside the range of \cite[Theorem~3.1]{DPP}.
+
+% =====================================================================
+\section{Formal verification}\label{sec:lean}
+
+\subsection{What is formalized}
+The file \nolinkurl{lean/Pipeline/CioabaGuoHaemers/Main.lean} (84 lines, no imports) states and proves two theorems in Lean~4 (version 4.37.0-rc1). Both are proved by \ttt{decide +kernel}, so the Lean kernel itself evaluates the finite check; \ttt{native\_decide} is not used.
+\begin{itemize}
+\item \ttt{lemmaG\_table}: every symbol of \(X\), \(Y\), \(Z\) lies in \(\{1,2,3\}^3\); the words have lengths 7, 4 and 6 and begin with \(\pi\rho=\sym{321}\,\sym{123}\); and all 17 windows of \(X^+\), \(Y^+\), \(Z^+\) with \(2\le i\le\abs{W}+1\) are good in the sense of~\eqref{eq:good}.
+\item \ttt{lemmaG\_small\_cases} (corroboration only): all \(11+6j\) cyclic windows of \(XYZ^j\) are good for \(j=0,\dots,8\).
+\end{itemize}
+Both theorems depend only on the axioms \ttt{propext} and \ttt{Classical.choice}. The check \ttt{bash scripts/lean\_check.sh CioabaGuoHaemers} passed in the research repository (no \ttt{sorry} or \ttt{admit}), and a direct kernel check \ttt{lean Pipeline/CioabaGuoHaemers/Main.lean} passed in a fresh clone of the release commit.
+
+\subsection{What is not formalized, and why}
+Theorem~\ref{thm:main} is not formalized. Neither are Lemmas~A--F and~N1, the concatenation step of Lemma~G (that the table gives a proper colouring for every \(j\)), the equivalence~\eqref{eq:good} between good windows and proper colourings, Remark~\ref{rem:cyclic} and Corollary~\ref{cor:both}. The reasons are these.
+\begin{enumerate}
+\item The main line uses Alspach's classification of Hamiltonian generalised Petersen graphs \cite{Als}, as cited. It is not in Mathlib, and formalizing it is a large project of its own.
+\item Mathlib has no support for designs or for edge colourings. The orbit, difference and \(1\)-factorization arguments (Lemmas~A, B, E, F) are feasible to formalize but costly.
+\item Lemma~N1 and the concatenation step of Lemma~G are elementary and are good next candidates. They were not attempted.
+\end{enumerate}
+
+% =====================================================================
+\section{Scope}\label{sec:scope}
+
+The following are not covered.
+\begin{itemize}
+\item Non-cyclic Steiner triple systems. The proof uses the translation orbits throughout. The conjecture of Darijani, Pike and Poulin for general \(\STS(v)\) stays open.
+\item The case \(v\equiv9\pmod{12}\). Here \(3\mid v\), there is an orbit of length \(v/3\), and Lemma~A(1) fails. For cyclic systems this case is \cite[Theorem~4.1]{DPP}, cited in Corollary~\ref{cor:both} and not re-proved.
+\item The cases \(v\equiv3,7\pmod{12}\). The block graph then has odd order. For \(v\ge7\) it is therefore class~2; for \(v=3\) it is the single-vertex graph \(K_1\). These cases lie outside both conjectures.
+\item Systems that are ``cyclic'' only in the wider sense of \cite{DPP} (an automorphism of order \(v\) that is not a \(v\)-cycle), if any exist. By Remark~\ref{rem:cyclic} there are none when \(v\) has at most three distinct prime divisors, so this exclusion can matter only for \(v\ge5005\).
+\item Complements of these block graphs, Steiner systems with blocks of size more than \(3\), and all other strongly regular graphs. The conjecture of Cioab\u{a}, Guo and Haemers is not proved.
+\item Hamilton decompositions, or any property stronger than class~1.
+\item No statement is made about which orders are new relative to the \emph{method} of \cite{DPP}. Their method is sufficient when \(\varphi(v)/(v-1)\ge2/3\). They report \(37182145\) as the smallest order where it must fail. Whether it succeeds for every cyclic \(\STS(385)\) was not determined. Whether proper pieces can always be avoided by the choice of the pairing and of the bijections was not determined either; Lemma~N1 makes the question irrelevant for Theorem~\ref{thm:main}.
+\end{itemize}
+
+% =====================================================================
+\section{Verification status and review history}\label{sec:status}
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.35\textwidth}}
+\toprule
+Step & How it is justified & Status \\
+\midrule
+Theorem BP1 (Alspach) & cited \cite{BP,Als} & proved in the literature; Alspach's paper not read \\
+Lemmas A--F, N1 (Sections~\ref{sec:structure}--\ref{sec:pieces}) & by hand & proved (passed AI review) \\
+Table~\ref{tab:windows} (Lemma~G) & computer, two independent pairs of programs; Lean kernel & certified; formalized (finite table only) \\
+Theorem~\ref{thm:main} & by hand, from the above & proved (relies on Theorem BP1, cited) \\
+Remark~\ref{rem:cyclic} & by hand & proved; not used \\
+Corollary~\ref{cor:both} & Theorem~\ref{thm:main}; \cite[Thm.~4.1]{DPP} & proved for \(v\equiv1\); cited, unchecked, for \(v\equiv9\) \\
+Checks of Section~\ref{sec:computer} & single programs & numerical (corroboration) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\emph{Review.} The full package (the proof, the scripts and their archived output) was reviewed by AI referees on three Claude models: a line-by-line checker (Claude Opus), an adversarial referee that assumes the proof is wrong (Claude Fable) and, from round~2 on, a third, fresh referee (Claude Sonnet). The referees reviewed a fixed commit, blind to each other and to the working notes. The proof passes when both first referees accept with zero issues in round~1, or later when at least two of three accept with zero issues and no referee has an unresolved major issue.
+\begin{itemize}
+\item Round~1 (commit \ttt{cd1c38a}): checker minor (4 issues: theorem numbering of \cite{BP} between journal and arXiv; the exact scope of ``cyclic''; an unproved bound \(m\ge5\); the computational step not yet certified); adversary accept (0 issues), with non-blocking notes that suggested Lemma~N1 and the argument of Remark~\ref{rem:cyclic}.
+\item Round~2 (commit \ttt{f2bfa65}): third referee accept (0 issues); checker minor (3 issues: a false sentence about which small cases were checked; an unsupported sentence about where proper pieces cannot be avoided; certificates tied to an earlier version of the file); adversary minor (1 issue, the same unsupported sentence).
+\item Round~3 (commit \ttt{955993e}): checker accept (0 issues); adversary accept (0 issues); third referee minor (1 wording issue: a sentence read as saying that proper pieces occur for every \(v\ge85\)). This is a pass. The release commit \ttt{0dcf830} fixed that wording.
+\end{itemize}
+No referee reported a major issue or a mathematical gap in any round. No issue changed a step of the proof of Theorem~\ref{thm:main}.
+
+\emph{Still needed.} Expert verification by a human combinatorialist, in particular of Lemmas~A--E, of the concatenation argument of Lemma~G and of the use of Alspach's theorem through \cite[Theorem~1.1]{BP}. A review by a model outside the Claude family has not been done.
+
+\subsection*{Transparency note}
+
+Disclosure: Human researcher assisted by AI systems during search, proof drafting, and verification. Internally audited and computationally verified, externally unrefereed.
+
+% =====================================================================
+\begin{thebibliography}{99}
+
+\bibitem{Als}
+B.~Alspach, \emph{The classification of Hamiltonian generalized Petersen graphs}, J. Combin. Theory Ser. B \textbf{34} (1983), 293--312.
+\url{https://doi.org/10.1016/0095-8956(83)90042-4}
+
+\bibitem{BPZ}
+M.~Boben, T.~Pisanski and A.~\v{Z}itnik, \emph{I-graphs and the corresponding configurations}, J. Combin. Des. \textbf{13} (2005), 406--424.
+\url{https://doi.org/10.1002/jcd.20054}
+
+\bibitem{BP}
+S.~Bonvicini and T.~Pisanski, \emph{A novel characterization of cubic Hamiltonian graphs via the associated quartic graphs}, Ars Math. Contemp. \textbf{12} (2017), 1--24.
+\url{https://doi.org/10.26493/1855-3974.921.b14};
+\url{https://arxiv.org/abs/1508.01865}
+
+\bibitem{CP}
+F.~Castagna and G.~Prins, \emph{Every generalized Petersen graph has a Tait coloring}, Pacific J. Math. \textbf{40} (1972), 53--58.
+\url{https://msp.org/pjm/1972/40-1/p07.xhtml}
+
+\bibitem{CGH}
+S.~M. Cioab\u{a}, K.~Guo and W.~H. Haemers, \emph{The chromatic index of strongly regular graphs}, Ars Math. Contemp. \textbf{20} (2021), 187--194.
+\url{https://doi.org/10.26493/1855-3974.2435.ec9};
+\url{https://arxiv.org/abs/1810.06660}
+
+\bibitem{Dar}
+I.~Darijani, \emph{Colourings of {$G$}-designs}, PhD thesis, Memorial University of Newfoundland, 2020.
+\url{https://web.archive.org/web/20240606190328/https://www.math.mun.ca/~dapike/publications/Theses/IrenDarijani_PhD.pdf}
+
+\bibitem{DPP}
+I.~Darijani, D.~A. Pike and J.~Poulin, \emph{The chromatic index of block intersection graphs of Kirkman triple systems and cyclic Steiner triple systems}, Australas. J. Combin. \textbf{69} (2017), 145--158.
+\url{https://ajc.maths.uq.edu.au/pdf/69/ajc_v69_p145.pdf}
+
+\bibitem{Wat}
+M.~E. Watkins, \emph{A theorem on Tait colorings with an application to the generalized Petersen graphs}, J. Combin. Theory \textbf{6} (1969), 152--164.
+\url{https://doi.org/10.1016/S0021-9800(69)80116-X}
+
+\end{thebibliography}
+
+\end{document}

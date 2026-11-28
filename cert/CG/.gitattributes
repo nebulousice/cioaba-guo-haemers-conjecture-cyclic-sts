@@ -1,0 +1,7 @@
+# Line endings: scripts are LF; archived outputs are stored byte for byte.
+*.py text eol=lf
+*.js text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.out -text
+out/** -text

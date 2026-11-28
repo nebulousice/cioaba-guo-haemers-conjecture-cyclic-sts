@@ -1,0 +1,53 @@
+command: python -I cg_windows.py ../../PROOF.md
+date (UTC): 2026-11-27T18:29:29Z
+repo commit: 0dcf83063db64ac4f9beed8aa97ae8270e6cb66d
+working tree: 0 local change(s) to PROOF.md
+PROOF.md sha256: 56e483f0857981e5050a226decc56e0da1b88ea4194ff8ccc9aa7c8b033252ae
+script sha256: 0effc69ff828961f47c05616216e24425f1e075f5956aa21e6e8633e49a41f55  cg_windows.py
+platform: MINGW64_NT-10.0-26200 3.6.10-5a1665c8.x86_64 x86_64
+python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)] (standard library only: re, sys)
+----
+(P0) words agree with PROOF.md
+  section 6: X = 321 123 232 312 213 313 121 (length 7) OK
+  section 6: Y = 321 123 323 121 (length 4) OK
+  section 6: Z = 321 123 232 312 213 131 (length 6) OK
+  section 11: X = 321 123 232 312 213 313 121 OK
+  section 11: Y = 321 123 323 121 OK
+  section 11: Z = 321 123 232 312 213 131 OK
+(P1) alphabet and lengths
+  lengths |X|,|Y|,|Z| = (7, 4, 6); 11 + 6j = |X|+|Y|+j|Z| requires (7,4,6): OK
+(a) common prefix pi rho = 321 123
+  X: starts 321 123 OK
+  Y: starts 321 123 OK
+  Z: starts 321 123 OK
+(b) windows of W+ = W pi rho, 2 <= i <= |W|+1
+  word  i  t_{i-2} t_{i-1} t_i   at w_i (O_{i-1},O_i,S_i)   at x_i (S_i,I_i,I_{i-2})   good
+  X+  2  321     123     232   1,2,3                    3,2,1                    True
+  X+  3  123     232     312   2,3,1                    1,2,3                    True
+  X+  4  232     312     213   3,2,1                    1,3,2                    True
+  X+  5  312     213     313   2,3,1                    1,3,2                    True
+  X+  6  213     313     121   3,1,2                    2,1,3                    True
+  X+  7  313     121     321   1,3,2                    2,1,3                    True
+  X+  8  121     321     123   3,1,2                    2,3,1                    True
+  Y+  2  321     123     323   1,3,2                    2,3,1                    True
+  Y+  3  123     323     121   3,1,2                    2,1,3                    True
+  Y+  4  323     121     321   1,3,2                    2,1,3                    True
+  Y+  5  121     321     123   3,1,2                    2,3,1                    True
+  Z+  2  321     123     232   1,2,3                    3,2,1                    True
+  Z+  3  123     232     312   2,3,1                    1,2,3                    True
+  Z+  4  232     312     213   3,2,1                    1,3,2                    True
+  Z+  5  312     213     131   2,1,3                    3,1,2                    True
+  Z+  6  213     131     321   1,3,2                    2,1,3                    True
+  Z+  7  131     321     123   3,1,2                    2,3,1                    True
+  windows checked: 17; good: 17
+(T) PROOF.md section 6 table agrees with recomputation
+  17 of 17 rows identical (word, i, three symbols, both colour triples)
+(J) junction windows of A.B equal windows |A|, |A|+1 of A+ (all 9 ordered pairs)
+  junction windows checked: 18 (= 9 pairs x 2); interior windows match rows of B+
+(C) mutation controls
+  single-entry mutations: 102; rejected by the window check: 102
+  constant word 111^5 rejected OK
+
+PASS cg_windows: (a) common prefix 321 123; (b) 17 of 17 windows good; PROOF.md table identical; 18 junction windows covered; 102 of 102 mutations rejected
+exit code: 0
+FINAL: PASS (C-G primary, cg_windows.py)

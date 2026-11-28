@@ -1,0 +1,16 @@
+command (in prover): python -I verify_small.py 13 25
+date (UTC): 2026-11-27T19:13:20Z
+PROOF.md sha256: b25f97dc7f6a39faf37f3b5c844c06a2e7a146fa6ada908c8f1f85b51bf3fdb8
+certified lines sha256: cf86be4f636b4f9429ff0cd1d4445a30f5ab9071c760fb6491a68b700c1b060f
+python: 3.12.10; node: v24.20.0
+platform: Windows-11-10.0.26200-SP0
+---
+Lemma C check, n odd <= 45: 1771 I-graphs, all as stated
+Lemma D sanity, connected I(m,a,b), m odd <= 25, a<b: 281 graphs; not 3-edge-colourable: [(5, 1, 2)]
+Lemma D' at v=85: pieces I(85,d,e), 1<=d<e<=42, gcd(85,d)>1 and gcd(85,e)>1: 45 {'proper': 16, 'disconnected': 29} ; not 3-edge-colourable: [(17, 34)]
+v=13: N=2, k=15, 15+9(N-2)=15; cyclic STS on Z_v: 4; Lemma A/B/E assertions hold for all; full colourings assembled and checked: 2040; stats {'pieces': 6120, 'disconnected': 0, 'proper': 0, 'rejected': 0, 'colourings': 2040}
+v=25: N=4, k=33, 15+9(N-2)=33; cyclic STS on Z_v: 240; Lemma A/B/E assertions hold for all; full colourings assembled and checked: 1440; stats {'pieces': 8640, 'disconnected': 0, 'proper': 0, 'rejected': 128, 'colourings': 1440}
+RESULT verify_small: PASS
+---
+exit code: 0
+runtime_s: 6

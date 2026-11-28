@@ -1,0 +1,28 @@
+command (in cert/CG): node cg_graph_x.js ../../PROOF.md 2000 7
+date (UTC): 2026-11-27T19:12:48Z
+PROOF.md sha256: b25f97dc7f6a39faf37f3b5c844c06a2e7a146fa6ada908c8f1f85b51bf3fdb8
+certified lines sha256: cf86be4f636b4f9429ff0cd1d4445a30f5ab9071c760fb6491a68b700c1b060f
+python: 3.12.10; node: v24.20.0
+platform: Windows-11-10.0.26200-SP0
+---
+Part 0: words equal PROOF.md section 11 Inputs
+  X = 321 123 232 312 213 313 121 OK
+  Y = 321 123 323 121 OK
+  Z = 321 123 232 312 213 131 OK
+Part 1: T = X Y Z^j on explicit G(11+6j, 2), j = 0..2000
+  proper: 2001 of 2001 (n = 11 .. 12011)
+Part 2: all cyclic words W_1..W_r over {X,Y,Z}, 2 <= r <= 7
+  proper: 3276 of 3276
+Part 3: n = 11 colour strings versus PROOF.md Smallest case
+  O = 3 1 2 3 2 3 1 3 1 3 1 OK
+  S = 2 2 3 1 1 1 2 2 2 2 2 OK
+  I = 1 3 2 2 3 3 1 1 3 3 1 OK
+Part 4: controls (every single-edge recolouring must be detected)
+  n = 11: 66 of 66 recolourings detected
+  n = 17: 102 of 102 recolourings detected
+  rotated-X control (n = 11): improper, detected
+
+PASS cg_graph_x: X Y Z^j proper on explicit G(11+6j,2) for j = 0..2000; all 3276 cyclic {X,Y,Z}-words with 2 <= r <= 7 proper; n = 11 strings match PROOF.md; controls detected
+---
+exit code: 0
+runtime_s: 3

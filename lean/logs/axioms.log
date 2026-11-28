@@ -1,0 +1,2 @@
+'CioabaGuoHaemers.lemmaG_table' depends on axioms: [propext, Classical.choice]
+'CioabaGuoHaemers.lemmaG_small_cases' depends on axioms: [propext, Classical.choice]
